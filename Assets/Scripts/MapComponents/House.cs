@@ -2,17 +2,10 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public enum HouseTier
+public class House : Improvement
 {
-    Tier1,
-    Tier2
-}
-
-public class House : MonoBehaviour
-{
-    
-    int occupants;
-
+    public int space;
+    public int occupants;
 
     // Start is called before the first frame update
     void Start()

@@ -29,7 +29,7 @@ public class CameraManager : MonoBehaviour
 
             float horizMove = Input.GetAxis("Horizontal") * Time.deltaTime * currentMoveSpeed;
             float vertMove = Input.GetAxis("Vertical") * Time.deltaTime * currentMoveSpeed;
-            cameraParent.transform.Translate(horizMove, 0, vertMove);
+            cameraParent.transform.Translate(-horizMove, 0, -vertMove);
         }
     }
 

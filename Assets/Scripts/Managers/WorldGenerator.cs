@@ -13,7 +13,7 @@ public enum TileType
 public class WorldGenerator : MonoBehaviour
 {
     // Map parent
-    public GameObject mapParent;
+    public GameObject tilesParent;
 
     // Main tile prefab
     public GameObject tilePrefab;
@@ -87,7 +87,7 @@ public class WorldGenerator : MonoBehaviour
     private void CreateNewRandomWorld()
 	{
         // Randomize the size and ocean and grassland percentages
-        size = Random.Range(4, 12);
+        size = Random.Range(8, 16);
         oceanPerc = Random.Range(0.1f, 0.3f);
         grasslandPerc = Random.Range(0.1f, 0.5f);
 
@@ -99,7 +99,7 @@ public class WorldGenerator : MonoBehaviour
             for(int x = 0; x < size; x++)
             {
                 TileType tileType = GetRandomTileType();
-                CreateWorldTile(mapParent, new Vector2((float)x, (float)y), tileType);
+                CreateWorldTile(tilesParent, new Vector2((float)x, (float)y), tileType);
 			}
 		}
 
@@ -138,14 +138,14 @@ public class WorldGenerator : MonoBehaviour
                 switch(c)
                 {
                     case 'O':
-                        CreateWorldTile(mapParent, new Vector2(i, lineNum), TileType.Ocean);
+                        CreateWorldTile(tilesParent, new Vector2(i, lineNum), TileType.Ocean);
                         break;
                     case 'G':
-                        CreateWorldTile(mapParent, new Vector2(i, lineNum), TileType.Grassland);
+                        CreateWorldTile(tilesParent, new Vector2(i, lineNum), TileType.Grassland);
                         break;
                     case 'P':
                     default:
-                        CreateWorldTile(mapParent, new Vector2(i, lineNum), TileType.Plains);
+                        CreateWorldTile(tilesParent, new Vector2(i, lineNum), TileType.Plains);
                         break;
                 }
 			}
@@ -173,7 +173,7 @@ public class WorldGenerator : MonoBehaviour
         StreamWriter writer = File.CreateText(filePath);
         
         // Loop through each tile and write a character based on the tile type
-        foreach(Transform childTrans in mapParent.transform)
+        foreach(Transform childTrans in tilesParent.transform)
 		{
             // Get the correct letter based on the tile's type
             string newLetter = "P";
@@ -215,12 +215,14 @@ public class WorldGenerator : MonoBehaviour
         // Create the tile as a child of the map parent
         GameObject newTile = Instantiate(tilePrefab, spawnPosition, Quaternion.identity, parentGameObj.transform);
 
-        newTile.name = tileType.ToString();
+        newTile.name = tileType.ToString() + " Tile";
         // Set coordinates and tileType
-        // Change material based on tile type
         newTile.GetComponent<Tile>().coordinates = posCoordinates;
         newTile.GetComponent<Tile>().tileType = tileType;
+        // Change material based on tile type
         newTile.GetComponent<Tile>().ChangeMaterial(tileMaterials[tileType]);
+        // Set select event
+        newTile.GetComponent<Selectable>().unityEvent = GetComponent<TileSelector>().selectEvent;
 
         // Ensure the tile markers are inactive
         newTile.GetComponent<Tile>().Select(false);
@@ -266,7 +268,7 @@ public class WorldGenerator : MonoBehaviour
     private void ClearMap()
 	{
         // Loop through each child of the map parent and destroy it
-        foreach(Transform childTrans in mapParent.transform)
+        foreach(Transform childTrans in tilesParent.transform)
             Destroy(childTrans.gameObject);
     }
 }
