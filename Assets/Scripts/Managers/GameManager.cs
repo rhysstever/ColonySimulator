@@ -2,15 +2,28 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+public enum GameState
+{
+    mainMenu,
+    mapLoad,
+    game,
+    pause
+}
+
 public class GameManager : MonoBehaviour
 {
+    public GameState currentGameState;
+
+    // Game stats
     public int totalHousingSpace;
     public int totalPopulation;
 
     // Start is called before the first frame update
     void Start()
     {
+        // Initial calls
         GetComponent<UIManager>().UpdateHouseInfoUI(totalHousingSpace, totalPopulation);
+        ChangeGameState(currentGameState);
     }
 
     // Update is called once per frame
@@ -18,6 +31,23 @@ public class GameManager : MonoBehaviour
     {
         
     }
+
+    public void ChangeGameState(GameState newGameState)
+	{
+        GetComponent<UIManager>().UpdateGameStateUI(newGameState);
+
+        switch(newGameState)
+        {
+            case GameState.mainMenu:
+                break;
+            case GameState.mapLoad:
+                break;
+            case GameState.game:
+                break;
+            case GameState.pause:
+                break;
+        }
+	}
 
     public void UpdateHouseData()
 	{

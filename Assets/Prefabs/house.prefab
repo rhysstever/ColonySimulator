@@ -384,9 +384,10 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 6153127227624726295}
-  - component: {fileID: 3200149303585214301}
   - component: {fileID: 4893026085378055987}
   - component: {fileID: 5309163279831105622}
+  - component: {fileID: -7607702073728955862}
+  - component: {fileID: 3200149303585214301}
   m_Layer: 0
   m_Name: house
   m_TagString: Untagged
@@ -410,21 +411,6 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &3200149303585214301
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6004442615220410073}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 19c94389e646fc148b589cc337754c31, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  upgradeTier: 0
-  space: 4
-  occupants: 0
 --- !u!65 &4893026085378055987
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -453,6 +439,34 @@ MonoBehaviour:
   unityEvent:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &-7607702073728955862
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6004442615220410073}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 866f8aef132b526408867cf69d9f4eaf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  tile: {fileID: 0}
+  upgradeTier: 0
+--- !u!114 &3200149303585214301
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6004442615220410073}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 19c94389e646fc148b589cc337754c31, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  space: 4
+  occupants: 0
 --- !u!1 &6199504142261850754
 GameObject:
   m_ObjectHideFlags: 0

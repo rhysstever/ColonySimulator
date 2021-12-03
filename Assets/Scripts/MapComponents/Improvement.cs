@@ -10,6 +10,7 @@ public enum UpgradeTier
 
 public class Improvement : MonoBehaviour
 {
+    public GameObject tile;
     public UpgradeTier upgradeTier;
 
     // Start is called before the first frame update

@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class House : Improvement
+public class House : MonoBehaviour
 {
     public int space;
     public int occupants;

@@ -29,7 +29,7 @@ public class WorldGenerator : MonoBehaviour
     public float grasslandPerc;
     public float oceanPerc;
 
-    private int savedMapCount;
+    public int savedMapCount;
 
     // Start is called before the first frame update
     void Start()
@@ -52,21 +52,7 @@ public class WorldGenerator : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-		// TODO: Make UI for Inputs
-        // Inputs
-        // 1 -> 3   -   Loads maps at that index
-        // R        -   Creates a random map
-        // V        -   Saves the current map
-		if(Input.GetKeyDown(KeyCode.Alpha1))
-            LoadWorld(1);
-        if(Input.GetKeyDown(KeyCode.Alpha2))
-            LoadWorld(2);
-        if(Input.GetKeyDown(KeyCode.Alpha3))
-            LoadWorld(3);
-        else if(Input.GetKeyDown(KeyCode.R))
-            CreateNewRandomWorld();
-        else if(Input.GetKeyDown(KeyCode.V))
-            SaveWorld();
+
     }
 
     /// <summary>
@@ -84,7 +70,7 @@ public class WorldGenerator : MonoBehaviour
     /// <summary>
     /// Create a random world with randomized parameters (size and tile type %s)
     /// </summary>
-    private void CreateNewRandomWorld()
+    public void CreateNewRandomWorld()
 	{
         // Randomize the size and ocean and grassland percentages
         size = Random.Range(8, 16);
@@ -103,15 +89,18 @@ public class WorldGenerator : MonoBehaviour
 			}
 		}
 
+        // Center the camera and change the gameState
         CenterCamera();
+        GetComponent<GameManager>().ChangeGameState(GameState.game);
 	}
 
     /// <summary>
     /// Loads a world from the "Maps" folder
     /// </summary>
     /// <param name="mapIndex">The index of the map trying to be loaded</param>
-    private void LoadWorld(int mapIndex)
-	{
+    public void LoadWorld(int mapIndex)
+    {
+        Debug.Log(mapIndex);
         // Create the file path string
         string filePath = "Assets/Resources/Maps/map" + mapIndex + ".txt";
 
@@ -158,15 +147,22 @@ public class WorldGenerator : MonoBehaviour
         grasslandPerc = -1;
         oceanPerc = -1;
 
-        // Recenter the camera
+        // Recenter the camera and change the gameState
         CenterCamera();
+        GetComponent<GameManager>().ChangeGameState(GameState.game);
     }
 
     /// <summary>
     /// Saves the current world as a text file in the "Maps" folder
     /// </summary>
-    private void SaveWorld()
+    public void SaveWorld()
 	{
+        if(tilesParent.transform.childCount == 0)
+		{
+            Debug.Log("No map to save!");
+            return;
+		}
+
         // Create the new save file
         savedMapCount++;
         string filePath = "Assets/Resources/Maps/map" + savedMapCount + ".txt";
