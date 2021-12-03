@@ -5,16 +5,18 @@ using UnityEngine;
 public enum ImprovementType
 {
     Road,
-    House
+    House,
+    Farm,
+    Mine
 }
 
 public class ImprovementManager : MonoBehaviour
 {
-    public GameObject improvementsParent;
+    // Empty parent gameObjects
+    public GameObject roadParent, houseParent, farmParent, mineParent;
 
     // Improvement prefabs
-    public GameObject housePrefab;
-    public GameObject roadPrefab;
+    public GameObject roadPrefab, housePrefab, farmPrefab, minePrefab;
 
     // Start is called before the first frame update
     void Start()
@@ -29,6 +31,14 @@ public class ImprovementManager : MonoBehaviour
     }
 
     /// <summary>
+    /// Builds a road improvement
+    /// </summary>
+    public void BuildRoad()
+    {
+        BuildImprovement(ImprovementType.Road);
+    }
+
+    /// <summary>
     /// Builds a house improvement
     /// </summary>
     public void BuildHouse()
@@ -40,12 +50,20 @@ public class ImprovementManager : MonoBehaviour
     }
 
     /// <summary>
-    /// Builds a road improvement
+    /// Builds a farm improvement
     /// </summary>
-    public void BuildRoad()
-	{
-        BuildImprovement(ImprovementType.Road);
-	}
+    public void BuildFarm()
+    {
+        BuildImprovement(ImprovementType.Farm);
+    }
+
+    /// <summary>
+    /// Builds a mine improvement
+    /// </summary>
+    public void BuildMine()
+    {
+        BuildImprovement(ImprovementType.Mine);
+    }
 
     /// <summary>
     /// Builds a generic improvement of the given type
@@ -72,13 +90,21 @@ public class ImprovementManager : MonoBehaviour
         GameObject newImprovement = null;
         switch(improvementType)
         {
+            case ImprovementType.Road:
+                newImprovement = Instantiate(roadPrefab, roadParent.transform);
+                newImprovement.name = "Road";
+                break;
             case ImprovementType.House:
-                newImprovement = Instantiate(housePrefab, improvementsParent.transform.GetChild(0));
+                newImprovement = Instantiate(housePrefab, houseParent.transform);
                 newImprovement.name = "House";
                 break;
-            case ImprovementType.Road:
-                newImprovement = Instantiate(roadPrefab, improvementsParent.transform.GetChild(1));
-                newImprovement.name = "Road";
+            case ImprovementType.Farm:
+                newImprovement = Instantiate(farmPrefab, farmParent.transform);
+                newImprovement.name = "Farm";
+                break;
+            case ImprovementType.Mine:
+                newImprovement = Instantiate(minePrefab, mineParent.transform);
+                newImprovement.name = "Mine";
                 break;
         }
         // Set initial data

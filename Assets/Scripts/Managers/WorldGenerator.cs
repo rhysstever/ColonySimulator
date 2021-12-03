@@ -100,7 +100,6 @@ public class WorldGenerator : MonoBehaviour
     /// <param name="mapIndex">The index of the map trying to be loaded</param>
     public void LoadWorld(int mapIndex)
     {
-        Debug.Log(mapIndex);
         // Create the file path string
         string filePath = "Assets/Resources/Maps/map" + mapIndex + ".txt";
 

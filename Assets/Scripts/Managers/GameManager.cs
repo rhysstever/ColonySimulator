@@ -54,8 +54,7 @@ public class GameManager : MonoBehaviour
         int totalPop = 0;
         int totalSpace = 0;
 
-        // TODO: Remove hard-coded index
-        Transform housesParentTrans = GetComponent<ImprovementManager>().improvementsParent.transform.GetChild(0);
+        Transform housesParentTrans = GetComponent<ImprovementManager>().houseParent.transform;
         foreach(Transform houseTrans in housesParentTrans)
 		{
             totalPop += houseTrans.GetComponent<House>().occupants;

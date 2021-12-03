@@ -22,8 +22,10 @@ public class UIManager : MonoBehaviour
     // Game
     [SerializeField]    // Panels
     private GameObject selectedGameObjectPanel;
+    [SerializeField]    // Empty gameObject parents
+    private GameObject tileButtonsParent, improvementButtonsParent;
     [SerializeField]    // Buttons
-    private GameObject pauseButton, buildRoadButton, buildHouseButton, destroyButton;
+    private GameObject pauseButton, buildRoadButton, buildHouseButton, buildFarmButton, buildMineButton, destroyButton;
     [SerializeField]    // Text
     private GameObject populationText, selectedObjectNameText;
 
@@ -44,6 +46,9 @@ public class UIManager : MonoBehaviour
         UpdateUI();
     }
 
+    /// <summary>
+    /// Runs one-time UI logic
+    /// </summary>
     private void SetupUI()
 	{
         // Map Load - button events
@@ -53,6 +58,8 @@ public class UIManager : MonoBehaviour
         pauseButton.GetComponent<Button>().onClick.AddListener(() => GetComponent<GameManager>().ChangeGameState(GameState.pause));
         buildRoadButton.GetComponent<Button>().onClick.AddListener(() => GetComponent<ImprovementManager>().BuildRoad());
         buildHouseButton.GetComponent<Button>().onClick.AddListener(() => GetComponent<ImprovementManager>().BuildHouse());
+        buildFarmButton.GetComponent<Button>().onClick.AddListener(() => GetComponent<ImprovementManager>().BuildFarm());
+        buildMineButton.GetComponent<Button>().onClick.AddListener(() => GetComponent<ImprovementManager>().BuildMine());
         destroyButton.GetComponent<Button>().onClick.AddListener(() => GetComponent<ImprovementManager>().DestoryImprovement());
 
         // Pause - button events
@@ -62,6 +69,9 @@ public class UIManager : MonoBehaviour
         quitButton.GetComponent<Button>().onClick.AddListener(() => Application.Quit());
     }
 
+    /// <summary>
+    /// Runs continually updating logic
+    /// </summary>
     private void UpdateUI()
 	{
 
@@ -102,6 +112,9 @@ public class UIManager : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Creates a button for each map that can be loaded
+    /// </summary>
     private void CreateMapLoadButtons()
 	{
         Vector3 startingPos = new Vector3(-135.0f, 20.0f, 0.0f);
@@ -125,6 +138,10 @@ public class UIManager : MonoBehaviour
 		}
 	}
 
+    /// <summary>
+    /// Updates UI when a new gameObject is selected
+    /// </summary>
+    /// <param name="selectedGameObject">Teh newly selected gameObject</param>
     public void UpdateSelectedObjectUI(GameObject selectedGameObject)
 	{
         // Deactivate all selected object UI
@@ -144,17 +161,18 @@ public class UIManager : MonoBehaviour
             selectedObjectNameText.GetComponent<Text>().text = selectedGameObject.name;
 		}
         
-
         // Determine what type of object is selected and display the correct UI
         if(selectedGameObject.GetComponent<Tile>() != null)
-        {
-            buildRoadButton.SetActive(true);
-            buildHouseButton.SetActive(true);
-		}
+            tileButtonsParent.SetActive(true);
         else if(selectedGameObject.GetComponent<Improvement>() != null)
-            destroyButton.SetActive(true);
+            improvementButtonsParent.SetActive(true);
     }
 
+    /// <summary>
+    /// Updates the UI text displaying the player's population
+    /// </summary>
+    /// <param name="population">The current population of the colony</param>
+    /// <param name="housingSpace">The maximum amount of people the colony can hold</param>
 	public void UpdateHouseInfoUI(int population, int housingSpace)
 	{
         populationText.GetComponent<Text>().text = "Population: " + population + "/" + housingSpace;
