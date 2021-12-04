@@ -27,7 +27,7 @@ public class UIManager : MonoBehaviour
     [SerializeField]    // Buttons
     private GameObject pauseButton, buildRoadButton, buildHouseButton, buildFarmButton, buildMineButton, destroyButton;
     [SerializeField]    // Text
-    private GameObject populationText, selectedObjectNameText;
+    private GameObject populationText, foodText, stoneText, selectedObjectNameText;
 
     // Pause
     [SerializeField]    // Buttons
@@ -169,12 +169,13 @@ public class UIManager : MonoBehaviour
     }
 
     /// <summary>
-    /// Updates the UI text displaying the player's population
+    /// Updates the UI text displaying all of the player's resources
     /// </summary>
-    /// <param name="population">The current population of the colony</param>
-    /// <param name="housingSpace">The maximum amount of people the colony can hold</param>
-	public void UpdateHouseInfoUI(int population, int housingSpace)
+    /// <param name="gm">The gameManager object that holds all resource values</param>
+	public void UpdateResourcesUI(GameManager gm)
 	{
-        populationText.GetComponent<Text>().text = "Population: " + population + "/" + housingSpace;
+        populationText.GetComponent<Text>().text = "Population: " + gm.population.Item1 + "/" + gm.population.Item2;
+        foodText.GetComponent<Text>().text = "Food: " + gm.food.Item1 + " [" + gm.food.Item2 + "]";
+        stoneText.GetComponent<Text>().text = "Stone: " + gm.stone.Item1 + " [" + gm.stone.Item2 + "]";
     }
 }

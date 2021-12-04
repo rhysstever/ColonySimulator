@@ -43,10 +43,7 @@ public class ImprovementManager : MonoBehaviour
     /// </summary>
     public void BuildHouse()
 	{
-        BuildImprovement(ImprovementType.House);
-        
-        // Update world house info
-        GetComponent<GameManager>().UpdateHouseData();
+        GameObject newHouse = BuildImprovement(ImprovementType.House);
     }
 
     /// <summary>
@@ -97,14 +94,23 @@ public class ImprovementManager : MonoBehaviour
             case ImprovementType.House:
                 newImprovement = Instantiate(housePrefab, houseParent.transform);
                 newImprovement.name = "House";
+                // Update resource values
+                int space = newImprovement.GetComponent<House>().space;
+                GetComponent<GameManager>().AddHousing(space);
                 break;
             case ImprovementType.Farm:
                 newImprovement = Instantiate(farmPrefab, farmParent.transform);
                 newImprovement.name = "Farm";
+                // Update resource values
+                int foodProduction = newImprovement.GetComponent<Producer>().production;
+                GetComponent<GameManager>().AddResource(improvementType, 0, foodProduction);
                 break;
             case ImprovementType.Mine:
                 newImprovement = Instantiate(minePrefab, mineParent.transform);
                 newImprovement.name = "Mine";
+                // Update resource values
+                int stoneProduction = newImprovement.GetComponent<Producer>().production;
+                GetComponent<GameManager>().AddResource(improvementType, 0, stoneProduction);
                 break;
         }
         // Set initial data
