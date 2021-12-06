@@ -43,7 +43,7 @@ public class ImprovementManager : MonoBehaviour
     /// </summary>
     public void BuildHouse()
 	{
-        GameObject newHouse = BuildImprovement(ImprovementType.House);
+        BuildImprovement(ImprovementType.House);
     }
 
     /// <summary>
@@ -63,7 +63,7 @@ public class ImprovementManager : MonoBehaviour
     }
 
     /// <summary>
-    /// Builds a generic improvement of the given type
+    /// Builds an improvement of the given type
     /// </summary>
     /// <param name="improvementType">The type of improvement being created</param>
     /// <returns>The newly created improvement gameObject</returns>
@@ -89,31 +89,28 @@ public class ImprovementManager : MonoBehaviour
         {
             case ImprovementType.Road:
                 newImprovement = Instantiate(roadPrefab, roadParent.transform);
-                newImprovement.name = "Road";
                 break;
             case ImprovementType.House:
                 newImprovement = Instantiate(housePrefab, houseParent.transform);
-                newImprovement.name = "House";
                 // Update resource values
                 int space = newImprovement.GetComponent<House>().space;
                 GetComponent<GameManager>().AddHousing(space);
                 break;
             case ImprovementType.Farm:
                 newImprovement = Instantiate(farmPrefab, farmParent.transform);
-                newImprovement.name = "Farm";
                 // Update resource values
                 int foodProduction = newImprovement.GetComponent<Producer>().production;
-                GetComponent<GameManager>().AddResource(improvementType, 0, foodProduction);
+                GetComponent<GameManager>().AddProduction(improvementType, foodProduction);
                 break;
             case ImprovementType.Mine:
                 newImprovement = Instantiate(minePrefab, mineParent.transform);
-                newImprovement.name = "Mine";
                 // Update resource values
                 int stoneProduction = newImprovement.GetComponent<Producer>().production;
-                GetComponent<GameManager>().AddResource(improvementType, 0, stoneProduction);
+                GetComponent<GameManager>().AddProduction(improvementType, stoneProduction);
                 break;
         }
         // Set initial data
+        newImprovement.name = improvementType.ToString();
         newImprovement.transform.position = tile.transform.position;
         newImprovement.GetComponent<Improvement>().tile = tile;
         newImprovement.GetComponent<Selectable>().unityEvent = GetComponent<TileSelector>().selectEvent;

@@ -117,10 +117,12 @@ public class UIManager : MonoBehaviour
     /// </summary>
     private void CreateMapLoadButtons()
 	{
+        // Define hard-coded values
         Vector3 startingPos = new Vector3(-135.0f, 20.0f, 0.0f);
         float deltaX = 90.0f;
         float deltaY = -40.0f;
 
+        // Loop through the number of saved maps
         for(int i = 1; i <= GetComponent<WorldGenerator>().savedMapCount; i++)
 		{
             GameObject mapLoadButton = Instantiate(mapLoadButtonPrefab, mapLoadButtonsParent.transform);

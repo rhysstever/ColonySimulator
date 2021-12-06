@@ -73,7 +73,7 @@ public class WorldGenerator : MonoBehaviour
     public void CreateNewRandomWorld()
 	{
         // Randomize the size and ocean and grassland percentages
-        size = Random.Range(8, 16);
+        size = Random.Range(12, 24);
         oceanPerc = Random.Range(0.1f, 0.3f);
         grasslandPerc = Random.Range(0.1f, 0.5f);
 

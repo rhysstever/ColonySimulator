@@ -18,10 +18,15 @@ public class TileSelector : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        // ESC - deselects the current object
         if(Input.GetKeyDown(KeyCode.Escape))
             SelectObject(null);
 	}
 
+    /// <summary>
+    /// Selects a new object 
+    /// </summary>
+    /// <param name="selectedObject">The new object to be selected</param>
     public void SelectObject(GameObject selectedObject)
 	{
         // The player can only select an object unless it is the Game state

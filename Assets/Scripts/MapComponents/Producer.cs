@@ -5,6 +5,7 @@ using UnityEngine;
 public class Producer : MonoBehaviour
 {
     public int production;
+    public float rate;
 
     // Start is called before the first frame update
     void Start()
