@@ -22,3 +22,4 @@ Possible things to improve/make more efficient
   - Add that prefab to the ImprovementManager.cs
   - Add a public helper method: BuildIMPROVEMENT_NAME() in ImprovementManager.cs
   - Add another case in the switch statement in BuildImprovement() in ImprovementManager.cs for this ImprovementType
+  - Add a button to create the improvement in the selectedObjectPanel on the Canvas; make it a child of the tileButtons object
