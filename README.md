@@ -13,3 +13,12 @@ Possible things to improve/make more efficient
   - Add a line to PopulateTileMatDict() in WorldGenerator.cs to pair the tile type and material
   - Create a TILE_TYPE % varible in WorldGenerator.cs for randomly generated maps
   - Add a calculation to use the TILE_TYPE % when creating a random map
+- When adding a new resource
+  - Create a (int, int) variable for it in GameManager.cs
+  - Create Text UI on the Canvas and in UIManager.cs
+  - Update the text UI based on the value from the GameManager.cs in UpdateResourcesUI()
+  - Create an improvement prefab for the producer of this resource
+  - Add the producer as a value in the ImprovementType enum in ImprovementManager.cs
+  - Add that prefab to the ImprovementManager.cs
+  - Add a public helper method: BuildIMPROVEMENT_NAME() in ImprovementManager.cs
+  - Add another case in the switch statement in BuildImprovement() in ImprovementManager.cs for this ImprovementType
