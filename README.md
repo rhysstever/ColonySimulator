@@ -5,8 +5,8 @@
 - Create resource production
 - Implement player ability to delete saved maps
 
-## Reminders
-Possible things to improve/make more efficient
+## Processes
+Things that can be improved/simplified
 - When adding a new tile type
   - Add it to the TileType enum
   - Create a material variable for it
