@@ -14,10 +14,12 @@ public class UIManager : MonoBehaviour
     // Map Load
     [SerializeField]    // Panels
     private GameObject mapLoadPanel;
-    [SerializeField]    // Buttons
-    private GameObject mapLoadButtonPrefab, randomMapLoadButton;
     [SerializeField]    // Empty gameObject parents
     private GameObject mapLoadButtonsParent;
+    [SerializeField]    // Buttons
+    private GameObject mapLoadButtonPrefab, mapLoadSelectedButton, randomMapLoadButton, mapDeleteButton;
+    [SerializeField]    // Text
+    private GameObject selectedMapIndexText;
 
     // Game
     [SerializeField]    // Panels
@@ -33,9 +35,13 @@ public class UIManager : MonoBehaviour
     [SerializeField]    // Buttons
     private GameObject continueButton, loadButton, saveButton, quitButton;
 
+    int selectedMapIndex;
+
     // Start is called before the first frame update
     void Start()
     {
+        selectedMapIndex = -1;
+
         SetupUI();
         UpdateSelectedObjectUI(null);
     }
@@ -52,7 +58,9 @@ public class UIManager : MonoBehaviour
     private void SetupUI()
 	{
         // Map Load - button events
+        SelectMap(1);
         randomMapLoadButton.GetComponent<Button>().onClick.AddListener(() => GetComponent<WorldGenerator>().CreateNewRandomWorld());
+        mapDeleteButton.GetComponent<Button>().onClick.AddListener(() => DeleteMap());
 
         // Game - button events
         pauseButton.GetComponent<Button>().onClick.AddListener(() => GetComponent<GameManager>().ChangeGameState(GameState.pause));
@@ -74,7 +82,7 @@ public class UIManager : MonoBehaviour
     /// </summary>
     private void UpdateUI()
 	{
-
+        
 	}
 
     /// <summary>
@@ -117,6 +125,10 @@ public class UIManager : MonoBehaviour
     /// </summary>
     private void CreateMapLoadButtons()
 	{
+        // Delete any current children of the parent
+        foreach(Transform childTrans in mapLoadButtonsParent.transform)
+            Destroy(childTrans.gameObject);
+
         // Define hard-coded values
         Vector3 startingPos = new Vector3(-135.0f, 20.0f, 0.0f);
         float deltaX = 90.0f;
@@ -136,7 +148,7 @@ public class UIManager : MonoBehaviour
             mapLoadButton.transform.localPosition = position;
             // Add an onClick to load a specific map
             int temp = i;   // this is needed or the number passed in will be (# of maps + 1)
-            mapLoadButton.GetComponent<Button>().onClick.AddListener(() => GetComponent<WorldGenerator>().LoadWorld(temp));
+            mapLoadButton.GetComponent<Button>().onClick.AddListener(() => SelectMap(temp));
 		}
 	}
 
@@ -179,5 +191,18 @@ public class UIManager : MonoBehaviour
         populationText.GetComponent<Text>().text = "Population: " + gm.population.Item1 + "/" + gm.population.Item2;
         foodText.GetComponent<Text>().text = "Food: " + gm.food.Item1 + " [" + gm.food.Item2 + "]";
         stoneText.GetComponent<Text>().text = "Stone: " + gm.stone.Item1 + " [" + gm.stone.Item2 + "]";
+    }
+
+    private void SelectMap(int index)
+	{
+        selectedMapIndex = index;
+        selectedMapIndexText.GetComponent<Text>().text = "Selected Map: " + selectedMapIndex;
+        mapLoadSelectedButton.GetComponent<Button>().onClick.AddListener(() => GetComponent<WorldGenerator>().LoadWorld(selectedMapIndex));
+    }
+
+    private void DeleteMap()
+	{
+        GetComponent<WorldGenerator>().DeleteMap(selectedMapIndex);
+        CreateMapLoadButtons();
     }
 }

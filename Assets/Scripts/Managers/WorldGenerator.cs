@@ -30,12 +30,14 @@ public class WorldGenerator : MonoBehaviour
     public float oceanPerc;
 
     public int savedMapCount;
+    private string mapFilePath;
 
     // Start is called before the first frame update
     void Start()
     {
+        mapFilePath = "Assets/Resources/Maps";
         // Get the number of currently saved maps
-        DirectoryInfo dir = new DirectoryInfo("Assets/Resources/Maps");
+        DirectoryInfo dir = new DirectoryInfo(mapFilePath);
         FileInfo[] fileInfos = dir.GetFiles("*.txt");   // ignores non .txt files (mostly .meta)
         savedMapCount = fileInfos.Length;
 
@@ -101,7 +103,7 @@ public class WorldGenerator : MonoBehaviour
     public void LoadWorld(int mapIndex)
     {
         // Create the file path string
-        string filePath = "Assets/Resources/Maps/map" + mapIndex + ".txt";
+        string filePath = mapFilePath + "/map" + mapIndex + ".txt";
 
         // End early if the file does not exist
         if(!File.Exists(filePath))
@@ -164,7 +166,7 @@ public class WorldGenerator : MonoBehaviour
 
         // Create the new save file
         savedMapCount++;
-        string filePath = "Assets/Resources/Maps/map" + savedMapCount + ".txt";
+        string filePath = mapFilePath + "/map" + savedMapCount + ".txt";
         StreamWriter writer = File.CreateText(filePath);
         
         // Loop through each tile and write a character based on the tile type
@@ -243,6 +245,16 @@ public class WorldGenerator : MonoBehaviour
         else
             return TileType.Plains;
     }
+
+    /// <summary>
+    /// Deletes a saved map file
+    /// </summary>
+    /// <param name="mapIndex">The index of the map that will be deleted</param>
+    public void DeleteMap(int mapIndex)
+	{
+        string filePath = mapFilePath + "/map" + mapIndex + ".txt";
+        File.Delete(filePath);
+	}
 
     /// <summary>
     /// A helper method that resets and centers the camera
