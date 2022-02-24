@@ -4,7 +4,6 @@ using UnityEngine;
 
 public enum ImprovementType
 {
-    Road,
     House,
     Farm,
     Mine
@@ -13,10 +12,10 @@ public enum ImprovementType
 public class ImprovementManager : MonoBehaviour
 {
     // Empty parent gameObjects
-    public GameObject roadParent, houseParent, farmParent, mineParent;
+    public GameObject houseParent, farmParent, mineParent;
 
     // Improvement prefabs
-    public GameObject roadPrefab, housePrefab, farmPrefab, minePrefab;
+    public GameObject housePrefab, farmPrefab, minePrefab;
 
     // Start is called before the first frame update
     void Start()
@@ -28,14 +27,6 @@ public class ImprovementManager : MonoBehaviour
     void Update()
     {
 
-    }
-
-    /// <summary>
-    /// Builds a road improvement
-    /// </summary>
-    public void BuildRoad()
-    {
-        BuildImprovement(ImprovementType.Road);
     }
 
     /// <summary>
@@ -87,9 +78,6 @@ public class ImprovementManager : MonoBehaviour
         GameObject newImprovement = null;
         switch(improvementType)
         {
-            case ImprovementType.Road:
-                newImprovement = Instantiate(roadPrefab, roadParent.transform);
-                break;
             case ImprovementType.House:
                 newImprovement = Instantiate(housePrefab, houseParent.transform);
                 // Update resource values
@@ -99,13 +87,13 @@ public class ImprovementManager : MonoBehaviour
             case ImprovementType.Farm:
                 newImprovement = Instantiate(farmPrefab, farmParent.transform);
                 // Update resource values
-                int foodProduction = newImprovement.GetComponent<Producer>().production;
+                int foodProduction = newImprovement.GetComponent<Producer>().productionAmount;
                 GetComponent<GameManager>().AddProduction(improvementType, foodProduction);
                 break;
             case ImprovementType.Mine:
                 newImprovement = Instantiate(minePrefab, mineParent.transform);
                 // Update resource values
-                int stoneProduction = newImprovement.GetComponent<Producer>().production;
+                int stoneProduction = newImprovement.GetComponent<Producer>().productionAmount;
                 GetComponent<GameManager>().AddProduction(improvementType, stoneProduction);
                 break;
         }

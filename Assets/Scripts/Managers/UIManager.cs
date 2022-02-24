@@ -11,6 +11,12 @@ public class UIManager : MonoBehaviour
     [SerializeField]
     private GameObject mainMenuParent, mapLoadParent, gameParent, pauseParent;
 
+    // Main Menu
+    [SerializeField]
+    private GameObject playButton;
+    [SerializeField]
+    private GameObject quitButton;
+
     // Map Load
     [SerializeField]    // Panels
     private GameObject mapLoadPanel;
@@ -27,13 +33,13 @@ public class UIManager : MonoBehaviour
     [SerializeField]    // Empty gameObject parents
     private GameObject tileButtonsParent, improvementButtonsParent;
     [SerializeField]    // Buttons
-    private GameObject pauseButton, buildRoadButton, buildHouseButton, buildFarmButton, buildMineButton, destroyButton;
+    private GameObject pauseButton, buildHouseButton, buildFarmButton, buildMineButton, destroyButton;
     [SerializeField]    // Text
     private GameObject populationText, foodText, stoneText, selectedObjectNameText;
 
     // Pause
     [SerializeField]    // Buttons
-    private GameObject continueButton, loadButton, saveButton, quitButton;
+    private GameObject continueButton, loadButton, saveButton, backToMenuButton;
 
     int selectedMapIndex;
 
@@ -57,6 +63,10 @@ public class UIManager : MonoBehaviour
     /// </summary>
     private void SetupUI()
 	{
+        // Main Menu - button events
+        playButton.GetComponent<Button>().onClick.AddListener(() => GetComponent<GameManager>().ChangeGameState(GameState.mapLoad));
+        quitButton.GetComponent<Button>().onClick.AddListener(() => Application.Quit());
+
         // Map Load - button events
         SelectMap(1);
         randomMapLoadButton.GetComponent<Button>().onClick.AddListener(() => GetComponent<WorldGenerator>().CreateNewRandomWorld());
@@ -64,7 +74,6 @@ public class UIManager : MonoBehaviour
 
         // Game - button events
         pauseButton.GetComponent<Button>().onClick.AddListener(() => GetComponent<GameManager>().ChangeGameState(GameState.pause));
-        buildRoadButton.GetComponent<Button>().onClick.AddListener(() => GetComponent<ImprovementManager>().BuildRoad());
         buildHouseButton.GetComponent<Button>().onClick.AddListener(() => GetComponent<ImprovementManager>().BuildHouse());
         buildFarmButton.GetComponent<Button>().onClick.AddListener(() => GetComponent<ImprovementManager>().BuildFarm());
         buildMineButton.GetComponent<Button>().onClick.AddListener(() => GetComponent<ImprovementManager>().BuildMine());
@@ -74,7 +83,7 @@ public class UIManager : MonoBehaviour
         continueButton.GetComponent<Button>().onClick.AddListener(() => GetComponent<GameManager>().ChangeGameState(GameState.game));
         loadButton.GetComponent<Button>().onClick.AddListener(() => GetComponent<GameManager>().ChangeGameState(GameState.mapLoad));
         saveButton.GetComponent<Button>().onClick.AddListener(() => GetComponent<WorldGenerator>().SaveWorld());
-        quitButton.GetComponent<Button>().onClick.AddListener(() => Application.Quit());
+        backToMenuButton.GetComponent<Button>().onClick.AddListener(() => GetComponent<GameManager>().ChangeGameState(GameState.mainMenu));
     }
 
     /// <summary>

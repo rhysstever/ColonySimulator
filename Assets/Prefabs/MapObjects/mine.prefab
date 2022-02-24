@@ -410,6 +410,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   tile: {fileID: 0}
+  type: 2
   upgradeTier: 0
 --- !u!114 &-9212692975222501056
 MonoBehaviour:
@@ -423,7 +424,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2c2d4187af94ce240ba4d76e3eea98f9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  production: 2
+  productionAmount: 4
+  rate: 4
 --- !u!1 &6240652740162576664
 GameObject:
   m_ObjectHideFlags: 0

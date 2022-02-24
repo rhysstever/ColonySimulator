@@ -46,6 +46,7 @@ public class GameManager : MonoBehaviour
 	{
         // Update UI
         GetComponent<UIManager>().UpdateGameStateUI(newGameState);
+        currentGameState = newGameState;
 
         // Perform initial, one-time logic when the gameState changes
         switch(newGameState)
@@ -98,22 +99,21 @@ public class GameManager : MonoBehaviour
     /// <param name="amountOfProduction">The amount of production being added</param>
     private void UpdateResourceData(ImprovementType improvementType, int amountOfResource, int amountOfProduction)
 	{
-        (int, int) resourceTuple = (0, 0);
         switch(improvementType)
         {
             case ImprovementType.House:
-                resourceTuple = population;
+                population.Item1 += amountOfResource;
+                population.Item2 += amountOfProduction;
                 break;
             case ImprovementType.Farm:
-                resourceTuple = food;
+                food.Item1 += amountOfResource;
+                food.Item2 += amountOfProduction;
                 break;
             case ImprovementType.Mine:
-                resourceTuple = stone;
+                stone.Item1 += amountOfResource;
+                stone.Item2 += amountOfProduction;
                 break;
         }
-
-        resourceTuple.Item1 += amountOfResource;
-        resourceTuple.Item2 += amountOfProduction;
 
         // Update UI
         GetComponent<UIManager>().UpdateResourcesUI(this);
