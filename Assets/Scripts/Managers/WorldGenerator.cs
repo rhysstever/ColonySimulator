@@ -36,10 +36,7 @@ public class WorldGenerator : MonoBehaviour
     void Start()
     {
         mapFilePath = "Assets/Resources/Maps";
-        // Get the number of currently saved maps
-        DirectoryInfo dir = new DirectoryInfo(mapFilePath);
-        FileInfo[] fileInfos = dir.GetFiles("*.txt");   // ignores non .txt files (mostly .meta)
-        savedMapCount = fileInfos.Length;
+        savedMapCount = GetSavedMapCount();
 
         tileMaterials = new Dictionary<TileType, Material>();
         PopulateTileMatDict();
@@ -72,10 +69,10 @@ public class WorldGenerator : MonoBehaviour
     /// <summary>
     /// Create a random world with randomized parameters (size and tile type %s)
     /// </summary>
-    public void CreateNewRandomWorld()
+    public void CreateNewRandomMap()
 	{
         // Randomize the size and ocean and grassland percentages
-        size = Random.Range(12, 24);
+        size = Random.Range(25, 50);
         oceanPerc = Random.Range(0.1f, 0.3f);
         grasslandPerc = Random.Range(0.1f, 0.5f);
 
@@ -86,8 +83,8 @@ public class WorldGenerator : MonoBehaviour
 		{
             for(int x = 0; x < size; x++)
             {
-                TileType tileType = GetRandomTileType();
-                CreateWorldTile(tilesParent, new Vector2((float)x, (float)y), tileType);
+                TileType tileType = GetRandomTileType(x, y);
+                CreateWorldTile(tilesParent, new Vector2(x, y), tileType);
 			}
 		}
 
@@ -228,22 +225,23 @@ public class WorldGenerator : MonoBehaviour
     /// <summary>
     /// A helper method that gets a random tile type
     /// </summary>
-    /// <returns>A randomized tile type</returns>
-    private TileType GetRandomTileType()
+    /// <param name="x">The x-index of the tile</param>
+    /// <param name="y">The y-index of the tile</param>
+    /// <returns>A random tile type</returns>
+    private TileType GetRandomTileType(int x, int y)
 	{
-        // TODO: add more calculation when more tile types are added
-        // "Stack" the tile type percents onto each other
-        float oceanPercMax = oceanPerc + grasslandPerc;
+        // Get a perlin noise'd number (scalars needed for noise)
+        float randNoiseNum = Mathf.PerlinNoise(x * 0.15f, y * 0.15f);
 
-        float randNum = Random.Range(0.0f, 1.0f);
-
-        // Get the right tile type, checking from the lowest percent to the highest
-        if(randNum < grasslandPerc)
-            return TileType.Grassland;
-        else if(randNum < oceanPercMax)
+        if(randNoiseNum <= oceanPerc)
             return TileType.Ocean;
         else
-            return TileType.Plains;
+		{
+            if(randNoiseNum <= grasslandPerc)
+                return TileType.Grassland;
+            else
+                return TileType.Plains;
+        }
     }
 
     /// <summary>
@@ -252,9 +250,13 @@ public class WorldGenerator : MonoBehaviour
     /// <param name="mapIndex">The index of the map that will be deleted</param>
     public void DeleteMap(int mapIndex)
 	{
+        // Delete the map file
         string filePath = mapFilePath + "/map" + mapIndex + ".txt";
         File.Delete(filePath);
-	}
+
+        // Recalculate savedMapCount
+        savedMapCount = GetSavedMapCount();
+    }
 
     /// <summary>
     /// A helper method that resets and centers the camera
@@ -277,5 +279,16 @@ public class WorldGenerator : MonoBehaviour
         // Loop through each child of the map parent and destroy it
         foreach(Transform childTrans in tilesParent.transform)
             Destroy(childTrans.gameObject);
+    }
+
+    /// <summary>
+    /// A helper method to get the number of saved maps
+    /// </summary>
+    /// <returns></returns>
+    private int GetSavedMapCount()
+	{
+        DirectoryInfo dir = new DirectoryInfo(mapFilePath);
+        FileInfo[] fileInfos = dir.GetFiles("*.txt");   // ignores non .txt files (mostly .meta)
+        return fileInfos.Length;
     }
 }

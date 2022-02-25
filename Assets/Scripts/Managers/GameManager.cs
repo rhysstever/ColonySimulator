@@ -35,7 +35,7 @@ public class GameManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        
+
     }
 
     /// <summary>
@@ -54,6 +54,9 @@ public class GameManager : MonoBehaviour
             case GameState.mainMenu:
                 break;
             case GameState.mapLoad:
+                // TODO: Remove this when saving/deleting/loading maps has been fixed
+                // bug with deleting a map that is not the last saved map
+                GetComponent<WorldGenerator>().CreateNewRandomMap();
                 break;
             case GameState.game:
                 break;
