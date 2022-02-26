@@ -10,7 +10,7 @@ public class CameraManager : MonoBehaviour
     // Movement floats
     private float moveSpeed;
     private float rotateSpeed;
-    private float zoomAmount;
+    private float zoomSpeed;
 
     // Bounds floats
     private float camMinHoriz;
@@ -18,7 +18,7 @@ public class CameraManager : MonoBehaviour
     private float camMinVert;
     private float camMaxVert;
 
-    private float angleRad;
+    private float camAngleRad;
 
     // Start is called before the first frame update
     void Start()
@@ -27,20 +27,21 @@ public class CameraManager : MonoBehaviour
 
         moveSpeed = 5.0f;
         rotateSpeed = 40.0f;
-        zoomAmount = 0.5f;
+        zoomSpeed = 5.0f;
 
         camMinHoriz = 3.0f;
         camMaxHoriz = GetComponent<WorldGenerator>().size - 5.0f;
         camMinVert = -3.0f;
         camMaxVert = 10.0f;
 
-        angleRad = Mathf.Atan(6.0f / 8.0f);
+        camAngleRad = Mathf.Atan(6.0f / 8.0f);
     }
 
     // Update is called once per frame
     void Update()
     {
         camMaxHoriz = GetComponent<WorldGenerator>().size - 5.0f;
+
     }
 
 	void FixedUpdate()
@@ -51,10 +52,9 @@ public class CameraManager : MonoBehaviour
         if (cameraParent != null && GameManager.instance.currentGameState == GameState.game)
 		{
             MoveCameraWithInput();
-            RotateCameraWithInput();
+            // RotateCameraWithInput(); // bugged with zoom clamping
             ZoomCameraWithInput();
             CheckBounds();
-            camera.transform.LookAt(cameraParent.transform.position);
         }
     }
 
@@ -105,11 +105,11 @@ public class CameraManager : MonoBehaviour
     /// </summary>
     private void ZoomCameraWithInput()
 	{
-        // Raises and lowers the camera parent based on the mouse scroll wheel
-        if(Input.GetAxis("Zoom") > 0)
-            camera.transform.Translate(0, 0, zoomAmount); // Zoom in
-        else if(Input.GetAxis("Zoom") < 0)
-            camera.transform.Translate(0, 0, -zoomAmount); // Zoom out
+        float zoomAmount = Input.GetAxis("Zoom") * Time.deltaTime * zoomSpeed;
+        Vector3 zoom = camera.transform.forward; 
+        zoom.Normalize();
+        zoom *= zoomAmount;
+        camera.transform.Translate(zoom, Space.World);
     }
 
     /// <summary>
@@ -123,7 +123,7 @@ public class CameraManager : MonoBehaviour
             Mathf.Clamp(cameraParent.transform.position.y, camMinVert, camMaxVert),
             Mathf.Clamp(cameraParent.transform.position.z, camMinHoriz, camMaxHoriz));
 
-        // Clamp camera zooming
+		// Clamp camera zooming
 		float currentDistance = Vector3.Distance(camera.transform.position, cameraParent.transform.position);
 		float distToParent = Mathf.Clamp(
 			currentDistance,
@@ -131,8 +131,8 @@ public class CameraManager : MonoBehaviour
 			20.0f);
 		camera.transform.position = new Vector3(
 			camera.transform.position.x,
-			distToParent * Mathf.Sin(angleRad),
+			distToParent * Mathf.Sin(camAngleRad),
 			cameraParent.transform.position.z +
-				distToParent * Mathf.Cos(angleRad));
+				distToParent * Mathf.Cos(camAngleRad));
 	}
 }

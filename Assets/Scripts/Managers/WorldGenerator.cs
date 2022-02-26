@@ -242,6 +242,7 @@ public class WorldGenerator : MonoBehaviour
         {
             case TileType.Forest:
                 newResource = Instantiate(forestPrefab, tile.transform);
+                newResource.transform.Rotate(0.0f, Random.Range(0.0f, 360.0f), 0.0f);
                 break;
             case TileType.Mountains:
                 newResource = Instantiate(mountainsPrefab, tile.transform);
