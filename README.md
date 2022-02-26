@@ -1,8 +1,6 @@
 # Colony Simulator
 
 ## To Do's
-- Restrict camera movement based on size of map
-- Create resource production
 - Implement player ability to delete saved maps
 
 ## Processes
