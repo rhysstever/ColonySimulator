@@ -30,7 +30,7 @@ public class UIManager : MonoBehaviour
     [SerializeField]    // Panels
     private GameObject selectedGameObjectPanel;
     [SerializeField]    // Empty gameObject parents
-    private GameObject tileButtonsParent, improvementButtonsParent;
+    private GameObject tileButtonsParent, improvementInfoParent, resourceInfoParent;
     [SerializeField]    // Buttons
     private GameObject pauseButton, buildHouseButton, buildFarmButton, buildMineButton, destroyButton;
     [SerializeField]    // Text
@@ -150,12 +150,28 @@ public class UIManager : MonoBehaviour
             selectedGameObjectPanel.SetActive(true);
             selectedObjectNameText.GetComponent<Text>().text = selectedGameObject.name;
 		}
-        
+
         // Determine what type of object is selected and display the correct UI
-        if(selectedGameObject.GetComponent<Tile>() != null)
+        // Check for improvement, then resource, then tile
+        if(selectedGameObject.GetComponent<Improvement>() != null)
+            improvementInfoParent.SetActive(true);
+        else if(selectedGameObject.GetComponent<Resource>() != null)
+		{
+            // Set the parent to be active but deactive its children
+            resourceInfoParent.SetActive(true);
+            foreach(Transform childTrans in resourceInfoParent.transform)
+                childTrans.gameObject.SetActive(false);
+
+            switch(selectedGameObject.GetComponent<Resource>().tile.GetComponent<Tile>().tileType)
+            {
+                case TileType.Mountains:
+                    buildMineButton.SetActive(true);
+                    break;
+            }
+		}
+        else if(selectedGameObject.GetComponent<Tile>() != null
+            && selectedGameObject.GetComponent<Tile>().tileType != TileType.Ocean)
             tileButtonsParent.SetActive(true);
-        else if(selectedGameObject.GetComponent<Improvement>() != null)
-            improvementButtonsParent.SetActive(true);
     }
 
     /// <summary>

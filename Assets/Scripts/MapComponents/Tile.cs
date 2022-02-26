@@ -7,6 +7,7 @@ public class Tile : MonoBehaviour
     public Vector2 coordinates;
     public TileType tileType;
     public GameObject improvement;
+    public GameObject resource;
 
     // Start is called before the first frame update
     void Start()

@@ -59,6 +59,8 @@ public class GameManager : MonoBehaviour
                 GetComponent<WorldGenerator>().CreateNewRandomMap();
                 break;
             case GameState.game:
+                // Reset the selected object
+                GetComponent<TileSelector>().DeselectObject();
                 break;
             case GameState.pause:
                 break;

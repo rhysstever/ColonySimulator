@@ -6,7 +6,8 @@ using UnityEngine;
 public enum TileType
 {
     Plains,
-    Grassland,
+    Forest,
+    Mountains,
     Ocean
 }
 
@@ -15,19 +16,15 @@ public class WorldGenerator : MonoBehaviour
     // Map parent
     public GameObject tilesParent;
 
-    // Main tile prefab
-    public GameObject tilePrefab;
-    
-    // Tile materials
+    // Prefabs
+    public GameObject tilePrefab, forestPrefab, mountainPrefab;
+
     public Dictionary<TileType, Material> tileMaterials;
-    public Material plainsMat;
-    public Material grasslandMat;
-    public Material oceanMat;
+    public Material plainsMat, forestMat, mountainsMat, oceanMat;
 
     // World Settings
     public int size;
-    public float grasslandPerc;
-    public float oceanPerc;
+    private float forestPercent, mountainsPercent, oceansPercent;
 
     public int savedMapCount;
     private string mapFilePath;
@@ -35,17 +32,15 @@ public class WorldGenerator : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        mapFilePath = "Assets/Resources/Maps";
-        savedMapCount = GetSavedMapCount();
+        forestPercent = 0.15f;
+        mountainsPercent = 0.1f;
+        oceansPercent = 0.15f;
 
         tileMaterials = new Dictionary<TileType, Material>();
         PopulateTileMatDict();
 
-        // TODO: Add when more tile types are added (make more efficient?)
-        if(grasslandPerc > 1)
-            grasslandPerc = 1;
-        if(oceanPerc > 1)
-            oceanPerc = 1;
+        mapFilePath = "Assets/Resources/Maps";
+        savedMapCount = GetSavedMapCount();
     }
 
     // Update is called once per frame
@@ -55,26 +50,12 @@ public class WorldGenerator : MonoBehaviour
     }
 
     /// <summary>
-    /// Correlates a tile type to a material
-    /// (To be used when a tile is created)
-    /// </summary>
-    private void PopulateTileMatDict()
-	{
-        // TODO: Add when more tile types are added
-        tileMaterials.Add(TileType.Plains, plainsMat);
-        tileMaterials.Add(TileType.Grassland, grasslandMat);
-        tileMaterials.Add(TileType.Ocean, oceanMat);
-    }
-
-    /// <summary>
     /// Create a random world with randomized parameters (size and tile type %s)
     /// </summary>
     public void CreateNewRandomMap()
 	{
         // Randomize the size and ocean and grassland percentages
         size = Random.Range(25, 50);
-        oceanPerc = Random.Range(0.1f, 0.3f);
-        grasslandPerc = Random.Range(0.1f, 0.5f);
 
         ClearMap();
 
@@ -92,6 +73,19 @@ public class WorldGenerator : MonoBehaviour
         CenterCamera();
         GetComponent<GameManager>().ChangeGameState(GameState.game);
 	}
+
+    /// <summary>
+    /// Correlates a tile type to a material
+    /// (To be used when a tile is created)
+    /// </summary>
+    private void PopulateTileMatDict()
+    {
+        // TODO: Add when more tile types are added
+        tileMaterials.Add(TileType.Plains, plainsMat);
+        tileMaterials.Add(TileType.Forest, forestMat);
+        tileMaterials.Add(TileType.Mountains, mountainsMat);
+        tileMaterials.Add(TileType.Ocean, oceanMat);
+    }
 
     /// <summary>
     /// Loads a world from the "Maps" folder
@@ -127,8 +121,11 @@ public class WorldGenerator : MonoBehaviour
                     case 'O':
                         CreateWorldTile(tilesParent, new Vector2(i, lineNum), TileType.Ocean);
                         break;
-                    case 'G':
-                        CreateWorldTile(tilesParent, new Vector2(i, lineNum), TileType.Grassland);
+                    case 'F':
+                        CreateWorldTile(tilesParent, new Vector2(i, lineNum), TileType.Forest);
+                        break;
+                    case 'M':
+                        CreateWorldTile(tilesParent, new Vector2(i, lineNum), TileType.Mountains);
                         break;
                     case 'P':
                     default:
@@ -142,8 +139,9 @@ public class WorldGenerator : MonoBehaviour
 
         // Update world info
         size = lineNum + 1;
-        grasslandPerc = -1;
-        oceanPerc = -1;
+        forestPercent = -1;
+        mountainsPercent = -1;
+        oceansPercent = -1;
 
         // Recenter the camera and change the gameState
         CenterCamera();
@@ -173,8 +171,11 @@ public class WorldGenerator : MonoBehaviour
             string newLetter = "P";
             switch(childTrans.GetComponent<Tile>().tileType)
             {
-                case TileType.Grassland:
-                    newLetter = "G";
+                case TileType.Forest:
+                    newLetter = "F";
+                    break;
+                case TileType.Mountains:
+                    newLetter = "M";
                     break;
                 case TileType.Ocean:
                     newLetter = "O";
@@ -215,11 +216,40 @@ public class WorldGenerator : MonoBehaviour
         newTile.GetComponent<Tile>().tileType = tileType;
         // Change material based on tile type
         newTile.GetComponent<Tile>().ChangeMaterial(tileMaterials[tileType]);
+        if(tileType == TileType.Forest || tileType == TileType.Mountains)
+            CreateResourceObj(newTile, tileType);
         // Set select event
         newTile.GetComponent<Selectable>().unityEvent = GetComponent<TileSelector>().selectEvent;
 
         // Ensure the tile markers are inactive
         newTile.GetComponent<Tile>().Select(false);
+	}
+
+    /// <summary>
+    /// Creates a resource object on a map tile
+    /// </summary>
+    /// <param name="tile">The gameObject tile that the resource will be on</param>
+    /// <param name="tileType">The tile type of the tyle</param>
+    private void CreateResourceObj(GameObject tile, TileType tileType)
+	{
+        GameObject newResource = null;
+        switch(tileType)
+        {
+            case TileType.Forest:
+                newResource = Instantiate(forestPrefab, tile.transform);
+                break;
+            case TileType.Mountains:
+                newResource = Instantiate(mountainPrefab, tile.transform);
+                break;
+        }
+        // End early if no resource object was created
+        if(newResource == null)
+            return;
+        // Set initial data
+        newResource.name = tileType.ToString();
+        newResource.GetComponent<Resource>().tile = tile;
+        newResource.GetComponent<Selectable>().unityEvent = GetComponent<TileSelector>().selectEvent;
+        tile.GetComponent<Tile>().resource = newResource;
 	}
 
     /// <summary>
@@ -233,15 +263,14 @@ public class WorldGenerator : MonoBehaviour
         // Get a perlin noise'd number (scalars needed for noise)
         float randNoiseNum = Mathf.PerlinNoise(x * 0.15f, y * 0.15f);
 
-        if(randNoiseNum <= oceanPerc)
+        if(randNoiseNum <= forestPercent)
+            return TileType.Forest;
+        else if(randNoiseNum <= forestPercent + mountainsPercent)
+            return TileType.Mountains;
+        else if(randNoiseNum <= forestPercent + mountainsPercent + oceansPercent)
             return TileType.Ocean;
         else
-		{
-            if(randNoiseNum <= grasslandPerc)
-                return TileType.Grassland;
-            else
-                return TileType.Plains;
-        }
+            return TileType.Plains;
     }
 
     /// <summary>

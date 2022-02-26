@@ -5,7 +5,7 @@ using UnityEngine.EventSystems;
 
 public class TileSelector : MonoBehaviour
 {
-    public GameObject currentSelectedGameObj;
+    private GameObject currentSelectedGameObj;
 
     public UnityGameObjectEvent selectEvent = new UnityGameObjectEvent();
 
@@ -20,7 +20,7 @@ public class TileSelector : MonoBehaviour
     {
         // ESC - deselects the current object
         if(Input.GetKeyDown(KeyCode.Escape))
-            SelectObject(null);
+            DeselectObject();
 	}
 
     /// <summary>
@@ -44,10 +44,11 @@ public class TileSelector : MonoBehaviour
         if(currentSelectedGameObj != null
             && currentSelectedGameObj.GetComponent<Tile>() != null)
 		{
-            // If the selected object is a tile with an improvement, then select the improvement
+            // Selection heirarchy: Improvement > Resource > Tile
             if(currentSelectedGameObj.GetComponent<Tile>().improvement != null)
                 currentSelectedGameObj = currentSelectedGameObj.GetComponent<Tile>().improvement;
-            // If there is no improvement, select the tile
+            else if(currentSelectedGameObj.GetComponent<Tile>().resource != null)
+                currentSelectedGameObj = currentSelectedGameObj.GetComponent<Tile>().resource;
             else
                 currentSelectedGameObj.GetComponent<Tile>().Select(true);
         }
@@ -55,4 +56,21 @@ public class TileSelector : MonoBehaviour
         // Update UI
         GetComponent<UIManager>().UpdateSelectedObjectUI(currentSelectedGameObj);
     }
+
+    /// <summary>
+    /// Deselects the selected object
+    /// </summary>
+    public void DeselectObject()
+	{
+        SelectObject(null);
+	}
+
+    /// <summary>
+    /// Gets the object that is currently selected
+    /// </summary>
+    /// <returns>The currently selected object (could be null)</returns>
+    public GameObject GetSelectedObject()
+	{
+        return currentSelectedGameObj;
+	}
 }

@@ -22,11 +22,11 @@ public class CameraManager : MonoBehaviour
     {
         moveSpeed = 5.0f;
         rotateSpeed = 40.0f;
-        zoomAmount = 1.0f;
+        zoomAmount = 0.5f;
 
         camMinHoriz = 3.0f;
         camMaxHoriz = GetComponent<WorldGenerator>().size - 5.0f;
-        camMinVert = -1.0f;
+        camMinVert = -3.0f;
         camMaxVert = 10.0f;
     }
 

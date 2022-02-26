@@ -61,11 +61,18 @@ public class ImprovementManager : MonoBehaviour
     private GameObject BuildImprovement(ImprovementType improvementType)
     {
         // Get the currently selected object
-        GameObject tile = GetComponent<TileSelector>().currentSelectedGameObj;
+        GameObject tile = GetComponent<TileSelector>().GetSelectedObject();
 
         // End early if nothing is currently selected
         if(tile == null)
             return null;
+
+        // Check if a resource is currently selected
+        if(tile.GetComponent<Resource>() != null)
+		{
+            tile = tile.GetComponent<Resource>().tile;
+            tile.GetComponent<Tile>().resource.SetActive(false);
+		}
 
         // An improvement can only built on an empty tile
         if(tile.GetComponent<Tile>().improvement != null)
@@ -86,12 +93,16 @@ public class ImprovementManager : MonoBehaviour
                 break;
             case ImprovementType.Farm:
                 newImprovement = Instantiate(farmPrefab, farmParent.transform);
+                newImprovement.GetComponent<Producer>().produceEvent = new UnityProduceEvent();
+                newImprovement.GetComponent<Producer>().produceEvent.AddListener(GetComponent<GameManager>().AddResource);
                 // Update resource values
                 int foodProduction = newImprovement.GetComponent<Producer>().productionAmount;
                 GetComponent<GameManager>().AddProduction(improvementType, foodProduction);
                 break;
             case ImprovementType.Mine:
                 newImprovement = Instantiate(minePrefab, mineParent.transform);
+                newImprovement.GetComponent<Producer>().produceEvent = new UnityProduceEvent();
+                newImprovement.GetComponent<Producer>().produceEvent.AddListener(GetComponent<GameManager>().AddResource);
                 // Update resource values
                 int stoneProduction = newImprovement.GetComponent<Producer>().productionAmount;
                 GetComponent<GameManager>().AddProduction(improvementType, stoneProduction);
@@ -116,7 +127,7 @@ public class ImprovementManager : MonoBehaviour
     public void DestoryImprovement()
 	{
         // Get the currently selected object
-        GameObject improvement = GetComponent<TileSelector>().currentSelectedGameObj;
+        GameObject improvement = GetComponent<TileSelector>().GetSelectedObject();
 
         // End early if nothing is selected or whatever is selected is not an improvement
         if(improvement == null || improvement.GetComponent<Improvement>() == null)
