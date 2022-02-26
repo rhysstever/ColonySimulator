@@ -13,22 +13,27 @@ public enum GameState
 
 public class GameManager : MonoBehaviour
 {
+    public static GameManager instance = null;
+
     public GameState currentGameState;
+    public Dictionary<ResourceType, (int, int)> resources;
 
-    // Resources
-    public (int, int) population;
-    public (int, int) food;
-    public (int, int) stone;
+	private void Awake()
+	{
+		if(instance == null)
+            instance = this;
+        else if (instance != this)
+            Destroy(gameObject);
+	}
 
-    // Start is called before the first frame update
-    void Start()
+	// Start is called before the first frame update
+	void Start()
     {
-        population = (0, 0);
-        food = (0, 0);
-        stone = (0, 0);
+        resources = new Dictionary<ResourceType, (int, int)>();
 
         // Initial calls
-        GetComponent<UIManager>().UpdateResourcesUI(this);
+        FillResourceDictionary();
+        GetComponent<UIManager>().UpdateResourcesUI();
         ChangeGameState(currentGameState);
     }
 
@@ -36,6 +41,18 @@ public class GameManager : MonoBehaviour
     void Update()
     {
 
+    }
+
+    /// <summary>
+    /// A helper method to fill the resource dictionary for each resource
+    /// </summary>
+    private void FillResourceDictionary()
+	{
+        resources.Add(ResourceType.People, (0, 0));
+        resources.Add(ResourceType.Food, (0, 0));
+        resources.Add(ResourceType.Wood, (0, 0));
+        resources.Add(ResourceType.Stone, (0, 0));
+        resources.Add(ResourceType.Metal, (0, 0));
     }
 
     /// <summary>
@@ -104,23 +121,13 @@ public class GameManager : MonoBehaviour
     /// <param name="amountOfProduction">The amount of production being added</param>
     private void UpdateResourceData(ImprovementType improvementType, int amountOfResource, int amountOfProduction)
 	{
-        switch(improvementType)
-        {
-            case ImprovementType.House:
-                population.Item1 += amountOfResource;
-                population.Item2 += amountOfProduction;
-                break;
-            case ImprovementType.Farm:
-                food.Item1 += amountOfResource;
-                food.Item2 += amountOfProduction;
-                break;
-            case ImprovementType.Mine:
-                stone.Item1 += amountOfResource;
-                stone.Item2 += amountOfProduction;
-                break;
-        }
+        ResourceType resourceType = GetComponent<ImprovementManager>().ImprovementToResource(improvementType);
+        (int, int) resourceStats = resources[resourceType];
+        resourceStats.Item1 += amountOfResource;
+        resourceStats.Item2 += amountOfProduction;
+        resources[resourceType] = resourceStats;
 
         // Update UI
-        GetComponent<UIManager>().UpdateResourcesUI(this);
+        GetComponent<UIManager>().UpdateResourcesUI();
     }
 }

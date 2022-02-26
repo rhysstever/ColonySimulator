@@ -63,7 +63,7 @@ public class UIManager : MonoBehaviour
     private void SetupUI()
 	{
         // Main Menu - button events
-        playButton.GetComponent<Button>().onClick.AddListener(() => GetComponent<GameManager>().ChangeGameState(GameState.mapLoad));
+        playButton.GetComponent<Button>().onClick.AddListener(() => GameManager.instance.ChangeGameState(GameState.mapLoad));
         quitButton.GetComponent<Button>().onClick.AddListener(() => Application.Quit());
 
         // Map Load - button events
@@ -72,17 +72,17 @@ public class UIManager : MonoBehaviour
         mapDeleteButton.GetComponent<Button>().onClick.AddListener(() => DeleteMap());
 
         // Game - button events
-        pauseButton.GetComponent<Button>().onClick.AddListener(() => GetComponent<GameManager>().ChangeGameState(GameState.pause));
+        pauseButton.GetComponent<Button>().onClick.AddListener(() => GameManager.instance.ChangeGameState(GameState.pause));
         buildHouseButton.GetComponent<Button>().onClick.AddListener(() => GetComponent<ImprovementManager>().BuildHouse());
         buildFarmButton.GetComponent<Button>().onClick.AddListener(() => GetComponent<ImprovementManager>().BuildFarm());
         buildMineButton.GetComponent<Button>().onClick.AddListener(() => GetComponent<ImprovementManager>().BuildMine());
         destroyButton.GetComponent<Button>().onClick.AddListener(() => GetComponent<ImprovementManager>().DestoryImprovement());
 
         // Pause - button events
-        continueButton.GetComponent<Button>().onClick.AddListener(() => GetComponent<GameManager>().ChangeGameState(GameState.game));
-        loadButton.GetComponent<Button>().onClick.AddListener(() => GetComponent<GameManager>().ChangeGameState(GameState.mapLoad));
+        continueButton.GetComponent<Button>().onClick.AddListener(() => GameManager.instance.ChangeGameState(GameState.game));
+        loadButton.GetComponent<Button>().onClick.AddListener(() => GameManager.instance.ChangeGameState(GameState.mapLoad));
         saveButton.GetComponent<Button>().onClick.AddListener(() => GetComponent<WorldGenerator>().SaveWorld());
-        backToMenuButton.GetComponent<Button>().onClick.AddListener(() => GetComponent<GameManager>().ChangeGameState(GameState.mainMenu));
+        backToMenuButton.GetComponent<Button>().onClick.AddListener(() => GameManager.instance.ChangeGameState(GameState.mainMenu));
     }
 
     /// <summary>
@@ -177,12 +177,17 @@ public class UIManager : MonoBehaviour
     /// <summary>
     /// Updates the UI text displaying all of the player's resources
     /// </summary>
-    /// <param name="gm">The gameManager object that holds all resource values</param>
-	public void UpdateResourcesUI(GameManager gm)
+	public void UpdateResourcesUI()
 	{
-        populationText.GetComponent<Text>().text = "Population: " + gm.population.Item1 + "/" + gm.population.Item2;
-        foodText.GetComponent<Text>().text = "Food: " + gm.food.Item1 + " [" + gm.food.Item2 + "]";
-        stoneText.GetComponent<Text>().text = "Stone: " + gm.stone.Item1 + " [" + gm.stone.Item2 + "]";
+        populationText.GetComponent<Text>().text = 
+            "Population: " + GameManager.instance.resources[ResourceType.People].Item1 
+            + "/" + GameManager.instance.resources[ResourceType.People].Item2;
+        foodText.GetComponent<Text>().text = 
+            "Food: " + GameManager.instance.resources[ResourceType.Food].Item1 
+            + " [" + GameManager.instance.resources[ResourceType.Food].Item2 + "]";
+        stoneText.GetComponent<Text>().text = 
+            "Stone: " + GameManager.instance.resources[ResourceType.Stone].Item1 
+            + " [" + GameManager.instance.resources[ResourceType.Stone].Item2 + "]";
     }
 
     /// <summary>

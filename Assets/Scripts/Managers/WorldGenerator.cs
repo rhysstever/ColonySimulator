@@ -17,14 +17,15 @@ public class WorldGenerator : MonoBehaviour
     public GameObject tilesParent;
 
     // Prefabs
-    public GameObject tilePrefab, forestPrefab, mountainPrefab;
+    public GameObject tilePrefab, forestPrefab, mountainsPrefab;
 
     public Dictionary<TileType, Material> tileMaterials;
     public Material plainsMat, forestMat, mountainsMat, oceanMat;
 
     // World Settings
     public int size;
-    private float forestPercent, mountainsPercent, oceansPercent;
+    private float oceansPercent, mountainsPercent, forestPercent;
+    private float oceansNoiseMod, mountainsNoiseMod, forestNoiseMod;
 
     public int savedMapCount;
     private string mapFilePath;
@@ -32,9 +33,13 @@ public class WorldGenerator : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        forestPercent = 0.15f;
-        mountainsPercent = 0.1f;
-        oceansPercent = 0.15f;
+        oceansPercent = 0.25f;
+        mountainsPercent = 0.2f;
+        forestPercent = 0.35f;
+
+        oceansNoiseMod = 0.15f;
+        mountainsNoiseMod = 0.25f;
+        forestNoiseMod = 0.35f;
 
         tileMaterials = new Dictionary<TileType, Material>();
         PopulateTileMatDict();
@@ -71,7 +76,7 @@ public class WorldGenerator : MonoBehaviour
 
         // Center the camera and change the gameState
         CenterCamera();
-        GetComponent<GameManager>().ChangeGameState(GameState.game);
+        GameManager.instance.ChangeGameState(GameState.game);
 	}
 
     /// <summary>
@@ -145,7 +150,7 @@ public class WorldGenerator : MonoBehaviour
 
         // Recenter the camera and change the gameState
         CenterCamera();
-        GetComponent<GameManager>().ChangeGameState(GameState.game);
+        GameManager.instance.ChangeGameState(GameState.game);
     }
 
     /// <summary>
@@ -239,7 +244,7 @@ public class WorldGenerator : MonoBehaviour
                 newResource = Instantiate(forestPrefab, tile.transform);
                 break;
             case TileType.Mountains:
-                newResource = Instantiate(mountainPrefab, tile.transform);
+                newResource = Instantiate(mountainsPrefab, tile.transform);
                 break;
         }
         // End early if no resource object was created
@@ -261,16 +266,20 @@ public class WorldGenerator : MonoBehaviour
     private TileType GetRandomTileType(int x, int y)
 	{
         // Get a perlin noise'd number (scalars needed for noise)
-        float randNoiseNum = Mathf.PerlinNoise(x * 0.15f, y * 0.15f);
+        float oceanNoiseNum = Mathf.PerlinNoise(x * oceansNoiseMod, y * oceansNoiseMod);
 
-        if(randNoiseNum <= forestPercent)
-            return TileType.Forest;
-        else if(randNoiseNum <= forestPercent + mountainsPercent)
-            return TileType.Mountains;
-        else if(randNoiseNum <= forestPercent + mountainsPercent + oceansPercent)
+        if(oceanNoiseNum < oceansPercent)
             return TileType.Ocean;
-        else
-            return TileType.Plains;
+
+        float mountainsNoiseNum = Mathf.PerlinNoise(x * mountainsNoiseMod, y * mountainsNoiseMod);
+        if(mountainsNoiseNum < mountainsPercent)
+            return TileType.Mountains;
+
+        float forestNoiseNum = Mathf.PerlinNoise(x * forestNoiseMod, y * forestNoiseMod);
+        if(forestNoiseNum < forestPercent)
+            return TileType.Forest;
+
+        return TileType.Plains;
     }
 
     /// <summary>

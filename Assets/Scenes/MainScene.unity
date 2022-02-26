@@ -3466,7 +3466,7 @@ MonoBehaviour:
   tilesParent: {fileID: 590836900}
   tilePrefab: {fileID: 2025015899355336308, guid: 257a5cdbaae817e4d92895de7a1cf6a7, type: 3}
   forestPrefab: {fileID: 5170857149507524764, guid: b990637070882ca4eaa7b385c447af66, type: 3}
-  mountainPrefab: {fileID: 5170857149507524764, guid: 4131ec714caff3a4b935828f1b40e584, type: 3}
+  mountainsPrefab: {fileID: 5170857149507524764, guid: 4131ec714caff3a4b935828f1b40e584, type: 3}
   plainsMat: {fileID: 2100000, guid: f1586a6fbaf797b4aa7882e8c4e649ae, type: 2}
   forestMat: {fileID: 2100000, guid: e4624a38c14c5d34b86290bee5042569, type: 2}
   mountainsMat: {fileID: 2100000, guid: abfa8f040a77a9b4d800b2b5038e4ea9, type: 2}

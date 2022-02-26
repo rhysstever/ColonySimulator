@@ -9,6 +9,15 @@ public enum ImprovementType
     Mine
 }
 
+public enum ResourceType
+{
+    People,
+    Food,
+    Wood,
+    Stone,
+    Metal
+}
+
 public class ImprovementManager : MonoBehaviour
 {
     // Empty parent gameObjects
@@ -89,23 +98,23 @@ public class ImprovementManager : MonoBehaviour
                 newImprovement = Instantiate(housePrefab, houseParent.transform);
                 // Update resource values
                 int space = newImprovement.GetComponent<House>().space;
-                GetComponent<GameManager>().AddHousing(space);
+                GameManager.instance.AddHousing(space);
                 break;
             case ImprovementType.Farm:
                 newImprovement = Instantiate(farmPrefab, farmParent.transform);
                 newImprovement.GetComponent<Producer>().produceEvent = new UnityProduceEvent();
-                newImprovement.GetComponent<Producer>().produceEvent.AddListener(GetComponent<GameManager>().AddResource);
+                newImprovement.GetComponent<Producer>().produceEvent.AddListener(GameManager.instance.AddResource);
                 // Update resource values
                 int foodProduction = newImprovement.GetComponent<Producer>().productionAmount;
-                GetComponent<GameManager>().AddProduction(improvementType, foodProduction);
+                GameManager.instance.AddProduction(improvementType, foodProduction);
                 break;
             case ImprovementType.Mine:
                 newImprovement = Instantiate(minePrefab, mineParent.transform);
                 newImprovement.GetComponent<Producer>().produceEvent = new UnityProduceEvent();
-                newImprovement.GetComponent<Producer>().produceEvent.AddListener(GetComponent<GameManager>().AddResource);
+                newImprovement.GetComponent<Producer>().produceEvent.AddListener(GameManager.instance.AddResource);
                 // Update resource values
                 int stoneProduction = newImprovement.GetComponent<Producer>().productionAmount;
-                GetComponent<GameManager>().AddProduction(improvementType, stoneProduction);
+                GameManager.instance.AddProduction(improvementType, stoneProduction);
                 break;
         }
         // Set initial data
@@ -139,5 +148,29 @@ public class ImprovementManager : MonoBehaviour
         GetComponent<TileSelector>().SelectObject(tile);
 
         Destroy(improvement);
+	}
+
+    /// <summary>
+    /// A helper function that matches the improvement type to resource type
+    /// </summary>
+    /// <param name="improvementType">The improvement</param>
+    /// <returns>The resource the improvement provides</returns>
+    public ResourceType ImprovementToResource(ImprovementType improvementType)
+	{
+        ResourceType resource = ResourceType.People;
+        switch(improvementType)
+        {
+            case ImprovementType.House:
+                resource = ResourceType.People;
+                break;
+            case ImprovementType.Farm:
+                resource = ResourceType.Food;
+                break;
+            case ImprovementType.Mine:
+                resource = ResourceType.Stone;
+                break;
+        }
+
+        return resource;
 	}
 }

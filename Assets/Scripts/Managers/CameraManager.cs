@@ -5,6 +5,7 @@ using UnityEngine;
 public class CameraManager : MonoBehaviour
 {
     public GameObject cameraParent;
+    private GameObject camera;
 
     // Movement floats
     private float moveSpeed;
@@ -17,9 +18,13 @@ public class CameraManager : MonoBehaviour
     private float camMinVert;
     private float camMaxVert;
 
+    private float angleRad;
+
     // Start is called before the first frame update
     void Start()
     {
+        camera = cameraParent.transform.GetChild(0).gameObject;
+
         moveSpeed = 5.0f;
         rotateSpeed = 40.0f;
         zoomAmount = 0.5f;
@@ -28,6 +33,8 @@ public class CameraManager : MonoBehaviour
         camMaxHoriz = GetComponent<WorldGenerator>().size - 5.0f;
         camMinVert = -3.0f;
         camMaxVert = 10.0f;
+
+        angleRad = Mathf.Atan(6.0f / 8.0f);
     }
 
     // Update is called once per frame
@@ -41,12 +48,13 @@ public class CameraManager : MonoBehaviour
         // 2 conditions for the camera to be able to move:
         // 1) If the camera parent exists
         // 2) The player is in the game, gameState
-        if (cameraParent != null && GetComponent<GameManager>().currentGameState == GameState.game)
+        if (cameraParent != null && GameManager.instance.currentGameState == GameState.game)
 		{
             MoveCameraWithInput();
             RotateCameraWithInput();
             ZoomCameraWithInput();
             CheckBounds();
+            camera.transform.LookAt(cameraParent.transform.position);
         }
     }
 
@@ -99,9 +107,9 @@ public class CameraManager : MonoBehaviour
 	{
         // Raises and lowers the camera parent based on the mouse scroll wheel
         if(Input.GetAxis("Zoom") > 0)
-            cameraParent.transform.Translate(0, -zoomAmount, 0); // Zoom in
+            camera.transform.Translate(0, 0, zoomAmount); // Zoom in
         else if(Input.GetAxis("Zoom") < 0)
-            cameraParent.transform.Translate(0, zoomAmount, 0); // Zoom out
+            camera.transform.Translate(0, 0, -zoomAmount); // Zoom out
     }
 
     /// <summary>
@@ -109,38 +117,22 @@ public class CameraManager : MonoBehaviour
     /// </summary>
     private void CheckBounds()
 	{
-        // X
-        if(cameraParent.transform.position.x > camMaxHoriz)
-            cameraParent.transform.position = new Vector3(
-                camMaxHoriz,
-                cameraParent.transform.position.y,
-                cameraParent.transform.position.z);
-        else if(cameraParent.transform.position.x < camMinHoriz)
-            cameraParent.transform.position = new Vector3(
-                camMinHoriz,
-                cameraParent.transform.position.y,
-                cameraParent.transform.position.z);
-        // Z
-        if(cameraParent.transform.position.z > camMaxHoriz)
-            cameraParent.transform.position = new Vector3(
-                cameraParent.transform.position.x,
-                cameraParent.transform.position.y,
-                camMaxHoriz);
-        else if(cameraParent.transform.position.z < camMinHoriz)
-            cameraParent.transform.position = new Vector3(
-                cameraParent.transform.position.x,
-                cameraParent.transform.position.y,
-                camMinHoriz);
-        // Y
-        if(cameraParent.transform.position.y > camMaxVert)
-            cameraParent.transform.position = new Vector3(
-                cameraParent.transform.position.x,
-                camMaxVert,
-                cameraParent.transform.position.z);
-        else if(cameraParent.transform.position.y < camMinVert)
-            cameraParent.transform.position = new Vector3(
-                cameraParent.transform.position.x,
-                camMinVert,
-                cameraParent.transform.position.z);
-    }
+        // Clamp camera parent panning
+        cameraParent.transform.position = new Vector3(
+            Mathf.Clamp(cameraParent.transform.position.x, camMinHoriz, camMaxHoriz),
+            Mathf.Clamp(cameraParent.transform.position.y, camMinVert, camMaxVert),
+            Mathf.Clamp(cameraParent.transform.position.z, camMinHoriz, camMaxHoriz));
+
+        // Clamp camera zooming
+		float currentDistance = Vector3.Distance(camera.transform.position, cameraParent.transform.position);
+		float distToParent = Mathf.Clamp(
+			currentDistance,
+			5.0f,
+			20.0f);
+		camera.transform.position = new Vector3(
+			camera.transform.position.x,
+			distToParent * Mathf.Sin(angleRad),
+			cameraParent.transform.position.z +
+				distToParent * Mathf.Cos(angleRad));
+	}
 }

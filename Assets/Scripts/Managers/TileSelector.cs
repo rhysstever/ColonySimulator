@@ -30,7 +30,7 @@ public class TileSelector : MonoBehaviour
     public void SelectObject(GameObject selectedObject)
 	{
         // The player can only select an object unless it is the Game state
-        if(GetComponent<GameManager>().currentGameState != GameState.game)
+        if(GameManager.instance.currentGameState != GameState.game)
             return;
 
         // If the previously selected object was a tile, deselect it

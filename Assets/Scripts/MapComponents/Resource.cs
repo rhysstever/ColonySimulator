@@ -2,13 +2,6 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public enum ResourceType
-{
-    Wood,
-    Stone,
-    Metal
-}
-
 public class Resource : MonoBehaviour
 {
     public ResourceType type;
