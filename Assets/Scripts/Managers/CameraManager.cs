@@ -15,7 +15,7 @@ public class CameraManager : MonoBehaviour
     }
 
     public GameObject cameraParent;
-    private GameObject camera;
+    private GameObject mainCam;
 
     // Movement floats
     private float moveSpeed;
@@ -33,7 +33,7 @@ public class CameraManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        camera = cameraParent.transform.GetChild(0).gameObject;
+        mainCam = cameraParent.transform.GetChild(0).gameObject;
 
         moveSpeed = 5.0f;
         rotateSpeed = 40.0f;
@@ -116,10 +116,10 @@ public class CameraManager : MonoBehaviour
     private void ZoomCameraWithInput()
 	{
         float zoomAmount = Input.GetAxis("Zoom") * Time.deltaTime * zoomSpeed;
-        Vector3 zoom = camera.transform.forward; 
+        Vector3 zoom = mainCam.transform.forward; 
         zoom.Normalize();
         zoom *= zoomAmount;
-        camera.transform.Translate(zoom, Space.World);
+        mainCam.transform.Translate(zoom, Space.World);
     }
 
     /// <summary>
@@ -134,13 +134,13 @@ public class CameraManager : MonoBehaviour
             Mathf.Clamp(cameraParent.transform.position.z, camMinHoriz, camMaxHoriz));
 
 		// Clamp camera zooming
-		float currentDistance = Vector3.Distance(camera.transform.position, cameraParent.transform.position);
+		float currentDistance = Vector3.Distance(mainCam.transform.position, cameraParent.transform.position);
 		float distToParent = Mathf.Clamp(
 			currentDistance,
 			5.0f,
 			20.0f);
-		camera.transform.position = new Vector3(
-			camera.transform.position.x,
+        mainCam.transform.position = new Vector3(
+            mainCam.transform.position.x,
 			distToParent * Mathf.Sin(camAngleRad),
 			cameraParent.transform.position.z +
 				distToParent * Mathf.Cos(camAngleRad));
