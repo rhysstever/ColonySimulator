@@ -5,6 +5,16 @@ using UnityEngine.EventSystems;
 
 public class TileSelector : MonoBehaviour
 {
+    public static TileSelector instance = null;
+
+    private void Awake()
+    {
+        if(instance == null)
+            instance = this;
+        else if(instance != this)
+            Destroy(gameObject);
+    }
+
     private GameObject currentSelectedGameObj;
 
     public UnityGameObjectEvent selectEvent = new UnityGameObjectEvent();
@@ -12,6 +22,7 @@ public class TileSelector : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        currentSelectedGameObj = null;
         selectEvent.AddListener(SelectObject);
     }
 
@@ -54,7 +65,7 @@ public class TileSelector : MonoBehaviour
         }
 
         // Update UI
-        GetComponent<UIManager>().UpdateSelectedObjectUI(currentSelectedGameObj);
+        UIManager.instance.UpdateSelectedObjectUI();
     }
 
     /// <summary>

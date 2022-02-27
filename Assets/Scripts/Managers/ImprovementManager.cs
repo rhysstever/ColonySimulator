@@ -20,6 +20,16 @@ public enum ResourceType
 
 public class ImprovementManager : MonoBehaviour
 {
+    public static ImprovementManager instance = null;
+
+    private void Awake()
+    {
+        if(instance == null)
+            instance = this;
+        else if(instance != this)
+            Destroy(gameObject);
+    }
+
     // Empty parent gameObjects
     public GameObject houseParent, farmParent, mineParent;
 
@@ -39,56 +49,29 @@ public class ImprovementManager : MonoBehaviour
     }
 
     /// <summary>
-    /// Builds a house improvement
-    /// </summary>
-    public void BuildHouse()
-	{
-        BuildImprovement(ImprovementType.House);
-    }
-
-    /// <summary>
-    /// Builds a farm improvement
-    /// </summary>
-    public void BuildFarm()
-    {
-        BuildImprovement(ImprovementType.Farm);
-    }
-
-    /// <summary>
-    /// Builds a mine improvement
-    /// </summary>
-    public void BuildMine()
-    {
-        BuildImprovement(ImprovementType.Mine);
-    }
-
-    /// <summary>
     /// Builds an improvement of the given type
     /// </summary>
     /// <param name="improvementType">The type of improvement being created</param>
     /// <returns>The newly created improvement gameObject</returns>
-    private GameObject BuildImprovement(ImprovementType improvementType)
+    public GameObject BuildImprovement(ImprovementType improvementType)
     {
         // Get the currently selected object
-        GameObject tile = GetComponent<TileSelector>().GetSelectedObject();
+        GameObject tile = TileSelector.instance.GetSelectedObject();
 
         // End early if nothing is currently selected
-        if(tile == null)
-            return null;
+        if(tile == null) return null;
 
         // Check if a resource is currently selected
         if(tile.GetComponent<Resource>() != null)
 		{
             tile = tile.GetComponent<Resource>().tile;
-            tile.GetComponent<Tile>().resource.SetActive(false);
-		}
-
-        // An improvement can only built on an empty tile
-        if(tile.GetComponent<Tile>().improvement != null)
-        {
-            Debug.Log("There is already an improvement built on this tile.");
-            return null;
         }
+
+        // Ends early if there is already an improvement
+        // OR the tile's resource does not match up with the improvement trying to be built
+        if(tile.GetComponent<Tile>().improvement != null
+            || !IsResourceCapatible(tile, improvementType))
+            return null;
 
         // Create a new GameObject based on the type
         GameObject newImprovement = null;
@@ -109,6 +92,7 @@ public class ImprovementManager : MonoBehaviour
                 GameManager.instance.AddProduction(improvementType, foodProduction);
                 break;
             case ImprovementType.Mine:
+                tile.GetComponent<Tile>().resource.SetActive(false);
                 newImprovement = Instantiate(minePrefab, mineParent.transform);
                 newImprovement.GetComponent<Producer>().produceEvent = new UnityProduceEvent();
                 newImprovement.GetComponent<Producer>().produceEvent.AddListener(GameManager.instance.AddResource);
@@ -121,11 +105,11 @@ public class ImprovementManager : MonoBehaviour
         newImprovement.name = improvementType.ToString();
         newImprovement.transform.position = tile.transform.position;
         newImprovement.GetComponent<Improvement>().tile = tile;
-        newImprovement.GetComponent<Selectable>().unityEvent = GetComponent<TileSelector>().selectEvent;
+        newImprovement.GetComponent<Selectable>().unityEvent = TileSelector.instance.selectEvent;
         tile.GetComponent<Tile>().improvement = newImprovement;
 
         // Update the current selected object
-        GetComponent<TileSelector>().SelectObject(newImprovement);
+        TileSelector.instance.SelectObject(newImprovement);
 
         return newImprovement;
     }
@@ -136,7 +120,7 @@ public class ImprovementManager : MonoBehaviour
     public void DestoryImprovement()
 	{
         // Get the currently selected object
-        GameObject improvement = GetComponent<TileSelector>().GetSelectedObject();
+        GameObject improvement = TileSelector.instance.GetSelectedObject();
 
         // End early if nothing is selected or whatever is selected is not an improvement
         if(improvement == null || improvement.GetComponent<Improvement>() == null)
@@ -145,7 +129,7 @@ public class ImprovementManager : MonoBehaviour
         // Get the tile of the improvement, remove the improvement from it, and set it as the new selected object
         GameObject tile = improvement.GetComponent<Improvement>().tile;
         tile.GetComponent<Tile>().improvement = null;
-        GetComponent<TileSelector>().SelectObject(tile);
+        TileSelector.instance.SelectObject(tile);
 
         Destroy(improvement);
 	}
@@ -172,5 +156,29 @@ public class ImprovementManager : MonoBehaviour
         }
 
         return resource;
+	}
+
+    /// <summary>
+    /// Checks to make sure the tile and improvement are applicable
+    /// (ex: mines being built on mountains, etc)
+    /// </summary>
+    /// <param name="tile">The currently selected tile</param>
+    /// <param name="improvementType">The improvement attempting to be built</param>
+    /// <returns></returns>
+    private bool IsResourceCapatible(GameObject tile, ImprovementType improvementType)
+	{
+        switch(improvementType)
+        {
+            case ImprovementType.House:
+            case ImprovementType.Farm:
+                return tile.GetComponent<Tile>().resource == null;
+            case ImprovementType.Mine:
+                if(tile.GetComponent<Tile>().resource != null
+                    && tile.GetComponent<Tile>().resource.GetComponent<Resource>().type == ResourceType.Stone)
+                    return true;
+                break;
+        }
+
+        return false;
 	}
 }

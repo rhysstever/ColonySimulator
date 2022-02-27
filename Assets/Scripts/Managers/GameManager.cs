@@ -15,16 +15,16 @@ public class GameManager : MonoBehaviour
 {
     public static GameManager instance = null;
 
+    private void Awake()
+    {
+        if(instance == null)
+            instance = this;
+        else if(instance != this)
+            Destroy(gameObject);
+    }
+
     public GameState currentGameState;
     public Dictionary<ResourceType, (int, int)> resources;
-
-	private void Awake()
-	{
-		if(instance == null)
-            instance = this;
-        else if (instance != this)
-            Destroy(gameObject);
-	}
 
 	// Start is called before the first frame update
 	void Start()
@@ -33,7 +33,7 @@ public class GameManager : MonoBehaviour
 
         // Initial calls
         FillResourceDictionary();
-        GetComponent<UIManager>().UpdateResourcesUI();
+        UIManager.instance.UpdateResourcesUI();
         ChangeGameState(currentGameState);
     }
 
@@ -62,7 +62,7 @@ public class GameManager : MonoBehaviour
     public void ChangeGameState(GameState newGameState)
 	{
         // Update UI
-        GetComponent<UIManager>().UpdateGameStateUI(newGameState);
+        UIManager.instance.UpdateGameStateUI(newGameState);
         currentGameState = newGameState;
 
         // Perform initial, one-time logic when the gameState changes
@@ -73,11 +73,11 @@ public class GameManager : MonoBehaviour
             case GameState.mapLoad:
                 // TODO: Remove this when saving/deleting/loading maps has been fixed
                 // bug with deleting a map that is not the last saved map
-                GetComponent<WorldGenerator>().CreateNewRandomMap();
+                WorldGenerator.instance.CreateNewRandomMap();
                 break;
             case GameState.game:
                 // Reset the selected object
-                GetComponent<TileSelector>().DeselectObject();
+                TileSelector.instance.DeselectObject();
                 break;
             case GameState.pause:
                 break;
@@ -121,13 +121,13 @@ public class GameManager : MonoBehaviour
     /// <param name="amountOfProduction">The amount of production being added</param>
     private void UpdateResourceData(ImprovementType improvementType, int amountOfResource, int amountOfProduction)
 	{
-        ResourceType resourceType = GetComponent<ImprovementManager>().ImprovementToResource(improvementType);
+        ResourceType resourceType = ImprovementManager.instance.ImprovementToResource(improvementType);
         (int, int) resourceStats = resources[resourceType];
         resourceStats.Item1 += amountOfResource;
         resourceStats.Item2 += amountOfProduction;
         resources[resourceType] = resourceStats;
 
         // Update UI
-        GetComponent<UIManager>().UpdateResourcesUI();
+        UIManager.instance.UpdateResourcesUI();
     }
 }

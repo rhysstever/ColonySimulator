@@ -4,6 +4,16 @@ using UnityEngine;
 
 public class CameraManager : MonoBehaviour
 {
+    public static CameraManager instance = null;
+
+    private void Awake()
+    {
+        if(instance == null)
+            instance = this;
+        else if(instance != this)
+            Destroy(gameObject);
+    }
+
     public GameObject cameraParent;
     private GameObject camera;
 
@@ -30,7 +40,7 @@ public class CameraManager : MonoBehaviour
         zoomSpeed = 5.0f;
 
         camMinHoriz = 3.0f;
-        camMaxHoriz = GetComponent<WorldGenerator>().size - 5.0f;
+        camMaxHoriz = WorldGenerator.instance.size - 5.0f;
         camMinVert = -3.0f;
         camMaxVert = 10.0f;
 
@@ -40,7 +50,7 @@ public class CameraManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        camMaxHoriz = GetComponent<WorldGenerator>().size - 5.0f;
+        camMaxHoriz = WorldGenerator.instance.size - 5.0f;
 
     }
 

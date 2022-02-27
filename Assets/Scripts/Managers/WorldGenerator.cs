@@ -13,6 +13,16 @@ public enum TileType
 
 public class WorldGenerator : MonoBehaviour
 {
+    public static WorldGenerator instance = null;
+
+    private void Awake()
+    {
+        if(instance == null)
+            instance = this;
+        else if(instance != this)
+            Destroy(gameObject);
+    }
+
     // Map parent
     public GameObject tilesParent;
 
@@ -224,7 +234,7 @@ public class WorldGenerator : MonoBehaviour
         if(tileType == TileType.Forest || tileType == TileType.Mountains)
             CreateResourceObj(newTile, tileType);
         // Set select event
-        newTile.GetComponent<Selectable>().unityEvent = GetComponent<TileSelector>().selectEvent;
+        newTile.GetComponent<Selectable>().unityEvent = TileSelector.instance.selectEvent;
 
         // Ensure the tile markers are inactive
         newTile.GetComponent<Tile>().Select(false);
@@ -254,7 +264,7 @@ public class WorldGenerator : MonoBehaviour
         // Set initial data
         newResource.name = tileType.ToString();
         newResource.GetComponent<Resource>().tile = tile;
-        newResource.GetComponent<Selectable>().unityEvent = GetComponent<TileSelector>().selectEvent;
+        newResource.GetComponent<Selectable>().unityEvent = TileSelector.instance.selectEvent;
         tile.GetComponent<Tile>().resource = newResource;
 	}
 
@@ -302,8 +312,8 @@ public class WorldGenerator : MonoBehaviour
     /// </summary>
     private void CenterCamera()
     {
-        GetComponent<CameraManager>().ResetCamera();
-        GetComponent<CameraManager>().MoveCamera(
+        CameraManager.instance.ResetCamera();
+        CameraManager.instance.MoveCamera(
             new Vector3(
                 (float)size / 2 - 0.5f,
                 0,
