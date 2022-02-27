@@ -89,7 +89,7 @@ public class GameManager : MonoBehaviour
     /// </summary>
     /// <param name="improvementType">The resource type</param>
     /// <param name="amount">The amount of the resource being produced</param>
-    public void AddResource(ImprovementType improvementType, int amount)
+    public void UpdateResourceAmount(ImprovementType improvementType, int amount)
 	{
         UpdateResourceData(improvementType, amount, 0);
     }
@@ -99,7 +99,7 @@ public class GameManager : MonoBehaviour
     /// </summary>
     /// <param name="improvementType">The production type</param>
     /// <param name="amount">The amount of production being added</param>
-    public void AddProduction(ImprovementType improvementType, int amount)
+    public void UpdateProduction(ImprovementType improvementType, int amount)
     {
         UpdateResourceData(improvementType, 0, amount);
     }
@@ -108,7 +108,7 @@ public class GameManager : MonoBehaviour
     /// Adds housing space to the player's stats
     /// </summary>
     /// <param name="amount">The amount of new housing space that has been created</param>
-    public void AddHousing(int amount)
+    public void UpdateHousing(int amount)
 	{
         UpdateResourceData(ImprovementType.House, 0, amount);
 	}

@@ -81,24 +81,24 @@ public class ImprovementManager : MonoBehaviour
                 newImprovement = Instantiate(housePrefab, houseParent.transform);
                 // Update resource values
                 int space = newImprovement.GetComponent<House>().space;
-                GameManager.instance.AddHousing(space);
+                GameManager.instance.UpdateHousing(space);
                 break;
             case ImprovementType.Farm:
                 newImprovement = Instantiate(farmPrefab, farmParent.transform);
                 newImprovement.GetComponent<Producer>().produceEvent = new UnityProduceEvent();
-                newImprovement.GetComponent<Producer>().produceEvent.AddListener(GameManager.instance.AddResource);
+                newImprovement.GetComponent<Producer>().produceEvent.AddListener(GameManager.instance.UpdateResourceAmount);
                 // Update resource values
                 int foodProduction = newImprovement.GetComponent<Producer>().productionAmount;
-                GameManager.instance.AddProduction(improvementType, foodProduction);
+                GameManager.instance.UpdateProduction(improvementType, foodProduction);
                 break;
             case ImprovementType.Mine:
                 tile.GetComponent<Tile>().resource.SetActive(false);
                 newImprovement = Instantiate(minePrefab, mineParent.transform);
                 newImprovement.GetComponent<Producer>().produceEvent = new UnityProduceEvent();
-                newImprovement.GetComponent<Producer>().produceEvent.AddListener(GameManager.instance.AddResource);
+                newImprovement.GetComponent<Producer>().produceEvent.AddListener(GameManager.instance.UpdateResourceAmount);
                 // Update resource values
                 int stoneProduction = newImprovement.GetComponent<Producer>().productionAmount;
-                GameManager.instance.AddProduction(improvementType, stoneProduction);
+                GameManager.instance.UpdateProduction(improvementType, stoneProduction);
                 break;
         }
         // Set initial data
@@ -125,6 +125,20 @@ public class ImprovementManager : MonoBehaviour
         // End early if nothing is selected or whatever is selected is not an improvement
         if(improvement == null || improvement.GetComponent<Improvement>() == null)
             return;
+
+        // Remove the production the improvement was providing
+        switch(improvement.GetComponent<Improvement>().type)
+        {
+            case ImprovementType.House:
+                GameManager.instance.UpdateHousing(-improvement.GetComponent<House>().space);
+                break;
+            case ImprovementType.Farm:
+            case ImprovementType.Mine:
+                GameManager.instance.UpdateProduction(
+                    improvement.GetComponent<Improvement>().type,
+                    -improvement.GetComponent<Producer>().productionAmount);
+                break;
+        }
 
         // Get the tile of the improvement, remove the improvement from it, and set it as the new selected object
         GameObject tile = improvement.GetComponent<Improvement>().tile;

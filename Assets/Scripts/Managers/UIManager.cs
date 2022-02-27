@@ -40,13 +40,13 @@ public class UIManager : MonoBehaviour
     [SerializeField]    // Panels
     private GameObject selectedGameObjectPanel, buildMenuPanel;
     [SerializeField]    // Empty gameObject parents
-    private GameObject improvementInfoParent, buildImprovementsButtonsParent;
+    private GameObject buildImprovementsButtonsParent;
     [SerializeField]    // Buttons
     private GameObject pauseButton, buildMenuButton;
     [SerializeField]    // Build Buttons
     private GameObject cancelBuildButton, buildHouseButton, buildFarmButton, buildMineButton, destroyButton;
     [SerializeField]    // Text
-    private GameObject populationText, foodText, stoneText, selectedObjectNameText;
+    private GameObject populationText, foodText, stoneText, selectedObjectNameText, selectedObjectDescText;
 
     // Pause
     [SerializeField]    // Buttons
@@ -152,14 +152,16 @@ public class UIManager : MonoBehaviour
 
         // Deactivate all selected object UI
         foreach(Transform childTrans in selectedGameObjectPanel.transform)
-            if(!childTrans.gameObject.Equals(selectedObjectNameText))
-                childTrans.gameObject.SetActive(false);
+            childTrans.gameObject.SetActive(false);
 
-        // Update the name text
+        // Update text
         if(selectedGameObject != null)
         {
             selectedGameObjectPanel.SetActive(true);
+            selectedObjectNameText.SetActive(true);
             selectedObjectNameText.GetComponent<Text>().text = selectedGameObject.name;
+            selectedObjectDescText.SetActive(true);
+            selectedObjectDescText.GetComponent<Text>().text = selectedGameObject.GetComponent<Selectable>().GetDescription();
         }
 		else
 		{
@@ -169,7 +171,7 @@ public class UIManager : MonoBehaviour
 
         // Activate the right elements based on the selected object
         if(selectedGameObject.GetComponent<Improvement>() != null)
-            improvementInfoParent.SetActive(true);
+            destroyButton.SetActive(true);
         else 
             buildMenuButton.SetActive(true);
     }
