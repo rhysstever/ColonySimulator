@@ -62,12 +62,12 @@ public class ImprovementManager : MonoBehaviour
 
         // Add resource costs for each improvement
         // Farm - 10 wood
-        improvementDescriptions[ImprovementType.Farm].AddResourceCost(ResourceType.Wood, 10);
+        improvementDescriptions[ImprovementType.Farm].AddResourceCost(ResourceType.Wood, 0);
         // House - 20 wood, 10 food
-        improvementDescriptions[ImprovementType.House].AddResourceCost(ResourceType.Wood, 20);
-        improvementDescriptions[ImprovementType.House].AddResourceCost(ResourceType.Food, 10);
+        improvementDescriptions[ImprovementType.House].AddResourceCost(ResourceType.Wood, 0);
+        improvementDescriptions[ImprovementType.House].AddResourceCost(ResourceType.Food, 0);
         // Mine - 15 wood
-        improvementDescriptions[ImprovementType.Mine].AddResourceCost(ResourceType.Wood, 15);
+        improvementDescriptions[ImprovementType.Mine].AddResourceCost(ResourceType.Wood, 0);
     }
 
     /// <summary>
@@ -96,11 +96,7 @@ public class ImprovementManager : MonoBehaviour
             improvementDescriptions[improvementType].Prefab,
             improvementDescriptions[improvementType].ParentObj.transform);
 		if(improvementDescriptions[improvementType].IsProducer)
-		{
-            newImprovement.GetComponent<Producer>().produceEvent = new UnityProduceEvent();
-            newImprovement.GetComponent<Producer>().produceEvent.AddListener(GameManager.instance.UpdateResourceAmount);
             GameManager.instance.UpdateProduction(improvementType, (int)improvementDescriptions[improvementType].ProdAmount);
-        }
 
         // Resource-unique logic
         switch(improvementType)

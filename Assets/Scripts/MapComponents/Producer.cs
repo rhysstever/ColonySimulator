@@ -3,17 +3,10 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
 
-[System.Serializable]
-public class UnityProduceEvent : UnityEvent<ImprovementType, int>
-{
-    // An empty class that is used for events that hold parameterized methods
-}
-
 public class Producer : MonoBehaviour
 {
     public int productionAmount;
     public float rate;
-    public UnityProduceEvent produceEvent;
 
     private float timer;
     private ImprovementType improvementType;
@@ -36,7 +29,7 @@ public class Producer : MonoBehaviour
         timer += Time.deltaTime;
         if(timer >= rate)
         {
-            produceEvent.Invoke(improvementType, productionAmount);
+            GameManager.instance.UpdateResourceAmount(improvementType, productionAmount);
             timer = 0.0f;
         }
     }
