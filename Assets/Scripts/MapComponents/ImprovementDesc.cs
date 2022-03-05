@@ -4,25 +4,38 @@ using UnityEngine;
 
 public class ImprovementDesc
 {
-    // Fields
-    private ImprovementType improvementType;
+	#region Fields
+	private ImprovementType improvementType;
     private GameObject prefab;
     private GameObject parentObj;
     private bool isProducer;
     private bool isOnResource;
     private float prodAmount;
     private Dictionary<ResourceType, int> resourceCosts;
+	#endregion
 
-    // Properties
-    public ImprovementType Type { get { return improvementType; } }
+	#region Properties
+	public ImprovementType Type { get { return improvementType; } }
     public GameObject Prefab { get { return prefab; } }
     public GameObject ParentObj { get { return parentObj; } }
     public bool IsProducer { get { return isProducer;} }
     public bool HasResource { get { return isOnResource; } }
     public float ProdAmount { get { return prodAmount; } }
     public Dictionary<ResourceType, int> ResourceCosts { get { return resourceCosts; } }
+    #endregion
 
-    // Constructor
+    #region Constructor
+    public ImprovementDesc(ImprovementType improvementType, GameObject prefab, GameObject parentObj)
+    {
+        this.improvementType = improvementType;
+        this.prefab = prefab;
+        this.parentObj = parentObj;
+        isProducer = false;
+        isOnResource = false;
+        prodAmount = 0;
+        resourceCosts = new Dictionary<ResourceType, int>();
+    }
+
     public ImprovementDesc(ImprovementType improvementType, GameObject prefab, GameObject parentObj, bool isProducer, bool isOnResource)
     {
         this.improvementType = improvementType;
@@ -33,10 +46,21 @@ public class ImprovementDesc
         prodAmount = isProducer ? prefab.GetComponent<Producer>().productionAmount : 0;
         resourceCosts = new Dictionary<ResourceType, int>();
     }
+	#endregion
 
-    // Methods
-    public void AddResourceCost(ResourceType resource, int amount)
-	{
-        resourceCosts.Add(resource, amount);
-	}
+	#region Methods
+	/// <summary>
+	/// Adds a resource cost to the improvement, updating the amount if the resource was already required
+	/// </summary>
+	/// <param name="resource">The type of resource needed to build this improvement</param>
+	/// <param name="amount">The amount of the resource needed</param>
+	public void AddResourceCost(ResourceType resource, int amount)
+    {
+        if(resourceCosts.ContainsKey(resource))
+            resourceCosts[resource] = amount;
+        else
+            resourceCosts.Add(resource, amount);
+    }
+    #endregion
+
 }

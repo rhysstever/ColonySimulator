@@ -57,7 +57,7 @@ public class ImprovementManager : MonoBehaviour
 	{
         // Add improvement descriptions for each improvement
         improvementDescriptions.Add(ImprovementType.Farm, new ImprovementDesc(ImprovementType.Farm, farmPrefab, farmParent, true, false));
-        improvementDescriptions.Add(ImprovementType.House, new ImprovementDesc(ImprovementType.House, housePrefab, houseParent, false, false));
+        improvementDescriptions.Add(ImprovementType.House, new ImprovementDesc(ImprovementType.House, housePrefab, houseParent));
         improvementDescriptions.Add(ImprovementType.Mine, new ImprovementDesc(ImprovementType.Mine, minePrefab, mineParent, true, true));
 
         // Add resource costs for each improvement
