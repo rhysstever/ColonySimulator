@@ -24,35 +24,48 @@ public class GameManager : MonoBehaviour
     }
 
     public GameState currentGameState;
-    public Dictionary<ResourceType, (int, int)> resources;
+    public Dictionary<ResourceType, ResourceDesc> resources;
 
 	// Start is called before the first frame update
 	void Start()
     {
-        resources = new Dictionary<ResourceType, (int, int)>();
-
-        // Initial calls
-        FillResourceDictionary();
-        UIManager.instance.UpdateResourcesUI();
+        FillResourceDescriptions();
         ChangeGameState(currentGameState);
     }
 
     // Update is called once per frame
     void Update()
     {
-
+        if(Input.GetKeyUp(KeyCode.Space))
+		{
+            resources[ResourceType.Wood].AddAmount(2);
+            UIManager.instance.UpdateResourcesUI();
+        }
     }
 
     /// <summary>
     /// A helper method to fill the resource dictionary for each resource
     /// </summary>
-    private void FillResourceDictionary()
+    private void FillResourceDescriptions()
 	{
-        resources.Add(ResourceType.People, (0, 0));
-        resources.Add(ResourceType.Food, (0, 0));
-        resources.Add(ResourceType.Wood, (0, 0));
-        resources.Add(ResourceType.Stone, (0, 0));
-        resources.Add(ResourceType.Metal, (0, 0));
+        resources = new Dictionary<ResourceType, ResourceDesc>();
+        resources.Add(
+            ResourceType.Population, 
+            new ResourceDesc(ResourceType.Population, UIManager.instance.populationText));
+        resources.Add(
+            ResourceType.Food,
+            new ResourceDesc(ResourceType.Food, UIManager.instance.foodText));
+        resources.Add(
+            ResourceType.Wood,
+            new ResourceDesc(ResourceType.Wood, UIManager.instance.woodText));
+        resources.Add(
+            ResourceType.Stone,
+            new ResourceDesc(ResourceType.Stone, UIManager.instance.stoneText));
+        resources.Add(
+            ResourceType.Metal,
+            new ResourceDesc(ResourceType.Metal, null));
+
+        UIManager.instance.UpdateResourcesUI();
     }
 
     /// <summary>
@@ -119,10 +132,8 @@ public class GameManager : MonoBehaviour
     private void UpdateResourceData(ImprovementType improvementType, int amountOfResource, int amountOfProduction)
 	{
         ResourceType resourceType = ImprovementManager.instance.ImprovementToResource(improvementType);
-        (int, int) resourceStats = resources[resourceType];
-        resourceStats.Item1 += amountOfResource;
-        resourceStats.Item2 += amountOfProduction;
-        resources[resourceType] = resourceStats;
+        resources[resourceType].AddAmount(amountOfResource);
+        resources[resourceType].AddSecondaryAmount(amountOfProduction);
 
         // Update UI
         UIManager.instance.UpdateResourcesUI();

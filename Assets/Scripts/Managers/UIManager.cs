@@ -45,14 +45,16 @@ public class UIManager : MonoBehaviour
     private GameObject pauseButton, buildMenuButton;
     [SerializeField]    // Build Buttons
     private GameObject cancelBuildButton, buildHouseButton, buildFarmButton, buildMineButton, destroyButton;
+    [SerializeField]    // Resource Text
+    public GameObject populationText, foodText, woodText, stoneText;
     [SerializeField]    // Text
-    private GameObject populationText, foodText, stoneText, selectedObjectNameText, selectedObjectDescText;
+    private GameObject selectedObjectNameText, selectedObjectDescText;
 
     // Pause
     [SerializeField]    // Buttons
     private GameObject continueButton, loadButton, saveButton, backToMenuButton;
 
-    int selectedMapIndex;
+    private int selectedMapIndex;
 
     // Start is called before the first frame update
     void Start()
@@ -66,7 +68,7 @@ public class UIManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        UpdateUI();
+        
     }
 
     /// <summary>
@@ -97,14 +99,6 @@ public class UIManager : MonoBehaviour
         saveButton.GetComponent<Button>().onClick.AddListener(() => WorldGenerator.instance.SaveWorld());
         backToMenuButton.GetComponent<Button>().onClick.AddListener(() => GameManager.instance.ChangeGameState(GameState.mainMenu));
     }
-
-    /// <summary>
-    /// Runs continually updating logic
-    /// </summary>
-    private void UpdateUI()
-	{
-        
-	}
 
     /// <summary>
     /// Updates overall UI based on the current gameState
@@ -198,15 +192,26 @@ public class UIManager : MonoBehaviour
     /// </summary>
 	public void UpdateResourcesUI()
 	{
-        populationText.GetComponent<Text>().text = 
-            "Population: " + GameManager.instance.resources[ResourceType.People].Item1 
-            + "/" + GameManager.instance.resources[ResourceType.People].Item2;
-        foodText.GetComponent<Text>().text = 
-            "Food: " + GameManager.instance.resources[ResourceType.Food].Item1 
-            + " [" + GameManager.instance.resources[ResourceType.Food].Item2 + "]";
-        stoneText.GetComponent<Text>().text = 
-            "Stone: " + GameManager.instance.resources[ResourceType.Stone].Item1 
-            + " [" + GameManager.instance.resources[ResourceType.Stone].Item2 + "]";
+        foreach(ResourceType resource in GameManager.instance.resources.Keys)
+            UpdateResouceText(resource);
+    }
+
+    /// <summary>
+    /// A helper method to update a single resource's text
+    /// </summary>
+    /// <param name="resource">The resource being updated</param>
+    private void UpdateResouceText(ResourceType resource)
+	{
+        string updatedText = resource + ": ";
+		if(resource == ResourceType.Population)
+            updatedText += GameManager.instance.resources[resource].CurrentAmount
+                + "/" + GameManager.instance.resources[resource].SecondaryAmount;
+        else
+            updatedText += GameManager.instance.resources[resource].CurrentAmount
+                + " [" + GameManager.instance.resources[resource].SecondaryAmount + "]";
+
+		if(GameManager.instance.resources[resource].Text != null)
+            GameManager.instance.resources[resource].Text.GetComponent<Text>().text = updatedText;
     }
 
     /// <summary>

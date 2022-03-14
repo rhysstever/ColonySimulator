@@ -11,7 +11,7 @@ public enum ImprovementType
 
 public enum ResourceType
 {
-    People,
+    Population,
     Food,
     Wood,
     Stone,
@@ -62,12 +62,12 @@ public class ImprovementManager : MonoBehaviour
 
         // Add resource costs for each improvement
         // Farm - 10 wood
-        improvementDescriptions[ImprovementType.Farm].AddResourceCost(ResourceType.Wood, 0);
+        improvementDescriptions[ImprovementType.Farm].AddResourceCost(ResourceType.Wood, 10);
         // House - 20 wood, 10 food
-        improvementDescriptions[ImprovementType.House].AddResourceCost(ResourceType.Wood, 0);
-        improvementDescriptions[ImprovementType.House].AddResourceCost(ResourceType.Food, 0);
+        improvementDescriptions[ImprovementType.House].AddResourceCost(ResourceType.Wood, 20);
+        improvementDescriptions[ImprovementType.House].AddResourceCost(ResourceType.Food, 10);
         // Mine - 15 wood
-        improvementDescriptions[ImprovementType.Mine].AddResourceCost(ResourceType.Wood, 0);
+        improvementDescriptions[ImprovementType.Mine].AddResourceCost(ResourceType.Wood, 15);
     }
 
     /// <summary>
@@ -75,52 +75,22 @@ public class ImprovementManager : MonoBehaviour
     /// </summary>
     /// <param name="improvementType">The type of improvement being created</param>
     /// <returns>The newly created improvement gameObject</returns>
-    public GameObject BuildImprovement(ImprovementType improvementType)
+    public void BuildImprovement(ImprovementType improvementType)
     {
         // Get the currently selected object
         GameObject tile = TileSelector.instance.GetSelectedObject();
 
         // End early if nothing is currently selected
-        if(tile == null) return null;
+        if(tile == null) return;
 
         // DeactiveSelect the resource if one exists on the tile
         if(tile.GetComponent<Resource>() != null)
             tile = tile.GetComponent<Resource>().tile;
 
         // Check several requirements for if the improvement can be built on the tile
-        if(!CanBuild(tile, improvementType))
-            return null;
+        if(!CanBuild(tile, improvementType)) return;
 
-        // Create a new GameObject based on the type
-        GameObject newImprovement = Instantiate(
-            improvementDescriptions[improvementType].Prefab,
-            improvementDescriptions[improvementType].ParentObj.transform);
-		if(improvementDescriptions[improvementType].IsProducer)
-            GameManager.instance.UpdateProduction(improvementType, (int)improvementDescriptions[improvementType].ProdAmount);
-
-        // Resource-unique logic
-        switch(improvementType)
-        {
-            case ImprovementType.House:
-                int space = newImprovement.GetComponent<House>().space;
-                GameManager.instance.UpdateHousing(space);
-                break;
-            case ImprovementType.Mine:
-                tile.GetComponent<Tile>().resource.SetActive(false);
-                break;
-        }
-
-        // Set initial data
-        newImprovement.name = improvementType.ToString();
-        newImprovement.transform.position = tile.transform.position;
-        newImprovement.GetComponent<Improvement>().tile = tile;
-        newImprovement.GetComponent<Selectable>().unityEvent = TileSelector.instance.selectEvent;
-        tile.GetComponent<Tile>().improvement = newImprovement;
-
-        // Update the current selected object
-        TileSelector.instance.SelectObject(newImprovement);
-
-        return newImprovement;
+        Build(tile, improvementType);
     }
 
     /// <summary>
@@ -164,11 +134,11 @@ public class ImprovementManager : MonoBehaviour
     /// <returns>The resource the improvement provides</returns>
     public ResourceType ImprovementToResource(ImprovementType improvementType)
 	{
-        ResourceType resource = ResourceType.People;
+        ResourceType resource = ResourceType.Population;
         switch(improvementType)
         {
             case ImprovementType.House:
-                resource = ResourceType.People;
+                resource = ResourceType.Population;
                 break;
             case ImprovementType.Farm:
                 resource = ResourceType.Food;
@@ -214,6 +184,48 @@ public class ImprovementManager : MonoBehaviour
     }
 
     /// <summary>
+    /// Builds an improvement
+    /// </summary>
+    /// <param name="tile">The tile where the improvement is being built on</param>
+    /// <param name="improvementType">The improvement being built</param>
+    /// <returns>The built improvement</returns>
+    private GameObject Build(GameObject tile, ImprovementType improvementType)
+	{
+        RemoveResourcesForBuild(improvementType);
+
+        // Create a new GameObject based on the type
+        GameObject newImprovement = Instantiate(
+            improvementDescriptions[improvementType].Prefab,
+            improvementDescriptions[improvementType].ParentObj.transform);
+        if(improvementDescriptions[improvementType].IsProducer)
+            GameManager.instance.UpdateProduction(improvementType, (int)improvementDescriptions[improvementType].ProdAmount);
+
+        // Resource-unique logic
+        switch(improvementType)
+        {
+            case ImprovementType.House:
+                int space = newImprovement.GetComponent<House>().space;
+                GameManager.instance.UpdateHousing(space);
+                break;
+            case ImprovementType.Mine:
+                tile.GetComponent<Tile>().resource.SetActive(false);
+                break;
+        }
+
+        // Set initial data
+        newImprovement.name = improvementType.ToString();
+        newImprovement.transform.position = tile.transform.position;
+        newImprovement.GetComponent<Improvement>().tile = tile;
+        newImprovement.GetComponent<Selectable>().unityEvent = TileSelector.instance.selectEvent;
+        tile.GetComponent<Tile>().improvement = newImprovement;
+
+        // Update the current selected object
+        TileSelector.instance.SelectObject(newImprovement);
+
+        return newImprovement;
+    }
+
+    /// <summary>
     /// Checks to make sure the tile and improvement are capatible
     /// (ex: mines being built on mountains, etc)
     /// </summary>
@@ -237,14 +249,31 @@ public class ImprovementManager : MonoBehaviour
         return false;
 	}
 
+    /// <summary>
+    /// Checks if the player enough of each of the resources required to build the improvement
+    /// </summary>
+    /// <param name="improvementType">The type of improvement trying to be built</param>
+    /// <returns>Whether the player has enough resources</returns>
     private bool HasResoucesToBuild(ImprovementType improvementType)
 	{
-        Dictionary<ResourceType, int> resourceCosts = improvementDescriptions[improvementType].ResourceCosts;
+        Dictionary<ResourceType, int> resourceCosts = improvementDescriptions[improvementType].ResourceBuildCosts;
 
         foreach(ResourceType resource in resourceCosts.Keys)
-            if(GameManager.instance.resources[resource].Item1 < resourceCosts[resource])
+            if(GameManager.instance.resources[resource].CurrentAmount < resourceCosts[resource])
                 return false;
 
         return true;
 	}
+
+    /// <summary>
+    /// A helper method to remove the resources needed to build an improvement
+    /// </summary>
+    /// <param name="improvementType">The improvement being built</param>
+    private void RemoveResourcesForBuild(ImprovementType improvementType)
+	{
+        Dictionary<ResourceType, int> resourceCosts = improvementDescriptions[improvementType].ResourceBuildCosts;
+
+        foreach(ResourceType resource in resourceCosts.Keys)
+            GameManager.instance.resources[resource].AddAmount(-resourceCosts[resource]);
+    }
 }

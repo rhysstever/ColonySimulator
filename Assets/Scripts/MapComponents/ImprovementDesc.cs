@@ -11,7 +11,7 @@ public class ImprovementDesc
     private bool isProducer;
     private bool isOnResource;
     private float prodAmount;
-    private Dictionary<ResourceType, int> resourceCosts;
+    private Dictionary<ResourceType, int> resourceBuildCosts;
 	#endregion
 
 	#region Properties
@@ -19,9 +19,9 @@ public class ImprovementDesc
     public GameObject Prefab { get { return prefab; } }
     public GameObject ParentObj { get { return parentObj; } }
     public bool IsProducer { get { return isProducer;} }
-    public bool HasResource { get { return isOnResource; } }
+    public bool IsOnResource { get { return isOnResource; } }
     public float ProdAmount { get { return prodAmount; } }
-    public Dictionary<ResourceType, int> ResourceCosts { get { return resourceCosts; } }
+    public Dictionary<ResourceType, int> ResourceBuildCosts { get { return resourceBuildCosts; } }
     #endregion
 
     #region Constructor
@@ -33,7 +33,7 @@ public class ImprovementDesc
         isProducer = false;
         isOnResource = false;
         prodAmount = 0;
-        resourceCosts = new Dictionary<ResourceType, int>();
+        resourceBuildCosts = new Dictionary<ResourceType, int>();
     }
 
     public ImprovementDesc(ImprovementType improvementType, GameObject prefab, GameObject parentObj, bool isProducer, bool isOnResource)
@@ -44,7 +44,7 @@ public class ImprovementDesc
         this.isProducer = isProducer;
         this.isOnResource = isOnResource;
         prodAmount = isProducer ? prefab.GetComponent<Producer>().productionAmount : 0;
-        resourceCosts = new Dictionary<ResourceType, int>();
+        resourceBuildCosts = new Dictionary<ResourceType, int>();
     }
 	#endregion
 
@@ -56,10 +56,10 @@ public class ImprovementDesc
 	/// <param name="amount">The amount of the resource needed</param>
 	public void AddResourceCost(ResourceType resource, int amount)
     {
-        if(resourceCosts.ContainsKey(resource))
-            resourceCosts[resource] = amount;
+        if(resourceBuildCosts.ContainsKey(resource))
+            resourceBuildCosts[resource] = amount;
         else
-            resourceCosts.Add(resource, amount);
+            resourceBuildCosts.Add(resource, amount);
     }
     #endregion
 
