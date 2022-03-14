@@ -228,9 +228,9 @@ public class UIManager : MonoBehaviour
             // Change the name and text of the button
             mapLoadButton.name = "loadMap" + mapNum + "Button";
             mapLoadButton.transform.GetChild(0).GetComponent<Text>().text = "Map " + mapNum;
+
             // Calculate and update the button's position
             int count = mapLoadButtonsParent.transform.childCount;
-            Debug.Log("Count " + count);
             Vector3 position = startingPos;
             position.x += ((count - 1) % 4) * deltaX;
             position.y += ((count - 1) / 4) * deltaY;
@@ -247,15 +247,14 @@ public class UIManager : MonoBehaviour
     private void ClearMapLoadButtons()
     {
         List<GameObject> mapButtonsToBeDestroyed = new List<GameObject>();
-        Debug.Log("Map parent children " + mapLoadButtonsParent.transform.childCount);
+
         // Delete any current children of the parent
         foreach (Transform childTrans in mapLoadButtonsParent.transform)
             mapButtonsToBeDestroyed.Add(childTrans.gameObject);
 
+        // Destroy() is too slow (the new buttons are being created immediately after
         for(int i = mapButtonsToBeDestroyed.Count - 1; i >= 0; i--)
-            GameObject.DestroyImmediate(mapButtonsToBeDestroyed[i]);
-
-        Debug.Log("Map parent cleared to " + mapLoadButtonsParent.transform.childCount);
+            DestroyImmediate(mapButtonsToBeDestroyed[i]);    
     }
 
     /// <summary>
