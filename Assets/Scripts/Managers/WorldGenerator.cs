@@ -37,7 +37,7 @@ public class WorldGenerator : MonoBehaviour
     private float oceansPercent, mountainsPercent, forestPercent;
     private float oceansNoiseMod, mountainsNoiseMod, forestNoiseMod;
 
-    public int savedMapCount;
+    public List<int> savedMapsNums;
     private string mapFilePath;
 
     // Start is called before the first frame update
@@ -55,7 +55,7 @@ public class WorldGenerator : MonoBehaviour
         PopulateTileMatDict();
 
         mapFilePath = "Assets/Resources/Maps";
-        savedMapCount = GetSavedMapCount();
+        savedMapsNums = GetSavedMapNums();
     }
 
     // Update is called once per frame
@@ -87,7 +87,7 @@ public class WorldGenerator : MonoBehaviour
         // Center the camera and change the gameState
         CenterCamera();
         GameManager.instance.ChangeGameState(GameState.game);
-	}
+    }
 
     /// <summary>
     /// Correlates a tile type to a material
@@ -95,7 +95,6 @@ public class WorldGenerator : MonoBehaviour
     /// </summary>
     private void PopulateTileMatDict()
     {
-        // TODO: Add when more tile types are added
         tileMaterials.Add(TileType.Plains, plainsMat);
         tileMaterials.Add(TileType.Forest, forestMat);
         tileMaterials.Add(TileType.Mountains, mountainsMat);
@@ -105,11 +104,11 @@ public class WorldGenerator : MonoBehaviour
     /// <summary>
     /// Loads a world from the "Maps" folder
     /// </summary>
-    /// <param name="mapIndex">The index of the map trying to be loaded</param>
-    public void LoadWorld(int mapIndex)
+    /// <param name="mapNum">The index of the map trying to be loaded</param>
+    public void LoadWorld(int mapNum)
     {
         // Create the file path string
-        string filePath = mapFilePath + "/map" + mapIndex + ".txt";
+        string filePath = mapFilePath + "/mapSavedAt" + mapNum + ".txt";
 
         // End early if the file does not exist
         if(!File.Exists(filePath))
@@ -175,8 +174,8 @@ public class WorldGenerator : MonoBehaviour
 		}
 
         // Create the new save file
-        savedMapCount++;
-        string filePath = mapFilePath + "/map" + savedMapCount + ".txt";
+        string mapName = "SavedAt" + (int)Time.time;
+        string filePath = mapFilePath + "/map" + mapName + ".txt";
         StreamWriter writer = File.CreateText(filePath);
         
         // Loop through each tile and write a character based on the tile type
@@ -209,6 +208,7 @@ public class WorldGenerator : MonoBehaviour
 		}
         
         writer.Close();
+        savedMapsNums = GetSavedMapNums();
     }
 
     /// <summary>
@@ -296,15 +296,19 @@ public class WorldGenerator : MonoBehaviour
     /// <summary>
     /// Deletes a saved map file
     /// </summary>
-    /// <param name="mapIndex">The index of the map that will be deleted</param>
-    public void DeleteMap(int mapIndex)
+    /// <param name="mapNum">The index of the map that will be deleted</param>
+    public void DeleteMap(int mapNum)
 	{
+        if (mapNum == -1)
+            return;
+
         // Delete the map file
-        string filePath = mapFilePath + "/map" + mapIndex + ".txt";
+        string filePath = mapFilePath + "/mapSavedAt" + mapNum + ".txt";
         File.Delete(filePath);
 
-        // Recalculate savedMapCount
-        savedMapCount = GetSavedMapCount();
+        // Update savedMapsNums
+        savedMapsNums = GetSavedMapNums();
+        UIManager.instance.CreateMapLoadButtons();
     }
 
     /// <summary>
@@ -333,11 +337,21 @@ public class WorldGenerator : MonoBehaviour
     /// <summary>
     /// A helper method to get the number of saved maps
     /// </summary>
-    /// <returns></returns>
-    private int GetSavedMapCount()
+    /// <returns>A list of the numbers of every saved map</returns>
+    private List<int> GetSavedMapNums()
 	{
         DirectoryInfo dir = new DirectoryInfo(mapFilePath);
         FileInfo[] fileInfos = dir.GetFiles("*.txt");   // ignores non .txt files (mostly .meta)
-        return fileInfos.Length;
+        List<int> mapNums = new List<int>();
+        foreach (FileInfo fileInfo in fileInfos)
+        {
+            // fileInfo.Name    ->  gets name of file
+            // Substring(10)    ->  trims string to map#.txt
+            // .Split('.')[0]   ->  "trims" string to map#
+            int mapNum = int.Parse(fileInfo.Name.Substring(10).Split('.')[0]);
+            mapNums.Add((mapNum));
+        }
+
+        return mapNums;
     }
 }

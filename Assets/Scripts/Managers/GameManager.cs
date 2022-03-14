@@ -71,9 +71,6 @@ public class GameManager : MonoBehaviour
             case GameState.mainMenu:
                 break;
             case GameState.mapLoad:
-                // TODO: Remove this when saving/deleting/loading maps has been fixed
-                // bug with deleting a map that is not the last saved map
-                WorldGenerator.instance.CreateNewRandomMap();
                 break;
             case GameState.game:
                 // Reset the selected object

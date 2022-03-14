@@ -79,9 +79,8 @@ public class UIManager : MonoBehaviour
         quitButton.GetComponent<Button>().onClick.AddListener(() => Application.Quit());
 
         // Map Load - button events
-        SelectMap(1);
         randomMapLoadButton.GetComponent<Button>().onClick.AddListener(() => WorldGenerator.instance.CreateNewRandomMap());
-        mapDeleteButton.GetComponent<Button>().onClick.AddListener(() => DeleteMap());
+        mapDeleteButton.GetComponent<Button>().onClick.AddListener(() => WorldGenerator.instance.DeleteMap(selectedMapIndex));
 
         // Game - button events
         pauseButton.GetComponent<Button>().onClick.AddListener(() => GameManager.instance.ChangeGameState(GameState.pause));
@@ -113,13 +112,7 @@ public class UIManager : MonoBehaviour
     /// <param name="gameState">The current gameState</param>
     public void UpdateGameStateUI(GameState gameState)
 	{
-		// If the previous gameState was mapLoad, 
-		// remove all the mapLoadButtons
-		if(mapLoadParent.activeSelf)
-            foreach(Transform childTrans in mapLoadButtonsParent.transform)
-                Destroy(childTrans.gameObject);
-
-        // Deactivate all empty gameObject parents
+		// Deactivate all empty gameObject parents
         foreach(Transform childTrans in canvas.transform)
             childTrans.gameObject.SetActive(false);
 
@@ -219,11 +212,9 @@ public class UIManager : MonoBehaviour
     /// <summary>
     /// Creates a button for each map that can be loaded
     /// </summary>
-    private void CreateMapLoadButtons()
+    public void CreateMapLoadButtons()
     {
-        // Delete any current children of the parent
-        foreach(Transform childTrans in mapLoadButtonsParent.transform)
-            Destroy(childTrans.gameObject);
+        ClearMapLoadButtons();
 
         // Define hard-coded values
         Vector3 startingPos = new Vector3(-135.0f, 20.0f, 0.0f);
@@ -231,39 +222,51 @@ public class UIManager : MonoBehaviour
         float deltaY = -40.0f;
 
         // Loop through the number of saved maps
-        for(int i = 1; i <= WorldGenerator.instance.savedMapCount; i++)
+        foreach(int mapNum in WorldGenerator.instance.savedMapsNums)
         {
             GameObject mapLoadButton = Instantiate(mapLoadButtonPrefab, mapLoadButtonsParent.transform);
             // Change the name and text of the button
-            mapLoadButton.name = "loadMap" + i + "Button";
-            mapLoadButton.transform.GetChild(0).GetComponent<Text>().text = "Map " + i;
+            mapLoadButton.name = "loadMap" + mapNum + "Button";
+            mapLoadButton.transform.GetChild(0).GetComponent<Text>().text = "Map " + mapNum;
             // Calculate and update the button's position
+            int count = mapLoadButtonsParent.transform.childCount;
+            Debug.Log("Count " + count);
             Vector3 position = startingPos;
-            position.x += ((i - 1) % 4) * deltaX;
-            position.y += ((i - 1) / 4) * deltaY;
+            position.x += ((count - 1) % 4) * deltaX;
+            position.y += ((count - 1) / 4) * deltaY;
             mapLoadButton.transform.localPosition = position;
             // Add an onClick to load a specific map
-            int temp = i;   // this is needed or the number passed in will be (# of maps + 1)
+            int temp = mapNum;   // this is needed or the number passed in will be (# of maps + 1)
             mapLoadButton.GetComponent<Button>().onClick.AddListener(() => SelectMap(temp));
         }
     }
 
     /// <summary>
-    /// Sets the selected map index and changes the onclick to load world
+    /// Clears the map load button children
     /// </summary>
-    /// <param name="index"></param>
-    private void SelectMap(int index)
-	{
-        selectedMapIndex = index;
-        mapLoadSelectedButton.GetComponent<Button>().onClick.AddListener(() => WorldGenerator.instance.LoadWorld(selectedMapIndex));
+    private void ClearMapLoadButtons()
+    {
+        List<GameObject> mapButtonsToBeDestroyed = new List<GameObject>();
+        Debug.Log("Map parent children " + mapLoadButtonsParent.transform.childCount);
+        // Delete any current children of the parent
+        foreach (Transform childTrans in mapLoadButtonsParent.transform)
+            mapButtonsToBeDestroyed.Add(childTrans.gameObject);
+
+        for(int i = mapButtonsToBeDestroyed.Count - 1; i >= 0; i--)
+            GameObject.DestroyImmediate(mapButtonsToBeDestroyed[i]);
+
+        Debug.Log("Map parent cleared to " + mapLoadButtonsParent.transform.childCount);
     }
 
     /// <summary>
-    /// Call delete map methods and update the buttons
+    /// Sets the selected map index and changes the onclick to load world
     /// </summary>
-    private void DeleteMap()
+    /// <param name="mapNum">The number of the newly selected map</param>
+    private void SelectMap(int mapNum)
 	{
-        WorldGenerator.instance.DeleteMap(selectedMapIndex);
-        CreateMapLoadButtons();
+        if (mapNum == -1)
+            return;
+        selectedMapIndex = mapNum;
+        mapLoadSelectedButton.GetComponent<Button>().onClick.AddListener(() => WorldGenerator.instance.LoadWorld(selectedMapIndex));
     }
 }
