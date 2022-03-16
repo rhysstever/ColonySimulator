@@ -32,7 +32,8 @@ public class ImprovementManager : MonoBehaviour
     }
 
     // Improvement prefabs
-    public GameObject farmPrefab, housePrefab, minePrefab, lumberMillPrefab;
+    [SerializeField]
+    private GameObject farmPrefab, housePrefab, minePrefab, lumberMillPrefab;
 
     public Dictionary<ImprovementType, ImprovementDesc> improvementDescriptions; 
 
@@ -62,14 +63,14 @@ public class ImprovementManager : MonoBehaviour
                 ImprovementType.House,
                 ResourceType.Population,
                 housePrefab,
-                FindImprovementParentGameObj(ImprovementType.House)));
+                WorldGenerator.instance.FindImprovementSubParent(ImprovementType.House)));
         improvementDescriptions.Add(
             ImprovementType.Farm, 
             new ImprovementDesc(
                 ImprovementType.Farm, 
                 ResourceType.Food,
-                farmPrefab, 
-                FindImprovementParentGameObj(ImprovementType.Farm), 
+                farmPrefab,
+                WorldGenerator.instance.FindImprovementSubParent(ImprovementType.Farm), 
                 true, false));
         improvementDescriptions.Add(
             ImprovementType.Mine, 
@@ -77,7 +78,7 @@ public class ImprovementManager : MonoBehaviour
                 ImprovementType.Mine,
                 ResourceType.Stone,
                 minePrefab,
-                FindImprovementParentGameObj(ImprovementType.Mine), 
+                WorldGenerator.instance.FindImprovementSubParent(ImprovementType.Mine), 
                 true, true));
         improvementDescriptions.Add(
             ImprovementType.LumberMill,
@@ -85,7 +86,7 @@ public class ImprovementManager : MonoBehaviour
                 ImprovementType.LumberMill,
                 ResourceType.Wood,
                 lumberMillPrefab,
-                FindImprovementParentGameObj(ImprovementType.LumberMill),
+                WorldGenerator.instance.FindImprovementSubParent(ImprovementType.LumberMill),
                 true, true));
 
         // Add resource costs for each improvement
@@ -304,18 +305,4 @@ public class ImprovementManager : MonoBehaviour
         foreach(ResourceType resource in resourceCosts.Keys)
             GameManager.instance.resources[resource].AddAmount(-resourceCosts[resource]);
     }
-
-    /// <summary>
-    /// A helper method to find the right empty parent gameObj for the right improvement
-    /// </summary>
-    /// <param name="improvementType">The type of improvement</param>
-    /// <returns>The empty parent gameObj for that improvement</returns>
-    private GameObject FindImprovementParentGameObj(ImprovementType improvementType)
-	{
-        foreach(Transform subParentTrans in WorldGenerator.instance.improvementParent.transform)
-            if(subParentTrans.gameObject.name.ToLower() == improvementType.ToString().ToLower() + "s")
-                return subParentTrans.gameObject;
-
-        return null;
-	}
 }

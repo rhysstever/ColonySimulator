@@ -14,19 +14,15 @@ public class CameraManager : MonoBehaviour
             Destroy(gameObject);
     }
 
-    public GameObject cameraParent;
+    [SerializeField]
+    private GameObject cameraParent;
     private GameObject mainCam;
 
     // Movement floats
-    private float moveSpeed;
-    private float rotateSpeed;
-    private float zoomSpeed;
+    private float moveSpeed, rotateSpeed, zoomSpeed;
 
     // Bounds floats
-    private float camMinHoriz;
-    private float camMaxHoriz;
-    private float camMinVert;
-    private float camMaxVert;
+    private float camMinHoriz, camMaxHoriz, camMinVert, camMaxVert;
 
     private float camAngleRad;
 

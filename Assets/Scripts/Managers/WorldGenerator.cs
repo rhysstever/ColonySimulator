@@ -23,14 +23,16 @@ public class WorldGenerator : MonoBehaviour
             Destroy(gameObject);
     }
 
-    // Map parent
-    public GameObject tilesParent, improvementParent;
+    [SerializeField] // Map parent
+    private GameObject tilesParent, improvementParent;
 
-    // Prefabs
-    public GameObject tilePrefab, forestPrefab, mountainsPrefab;
+    [SerializeField] // Prefabs
+    private GameObject tilePrefab, forestPrefab, mountainsPrefab;
 
+    [SerializeField] // Resource tile materials
+    private Material plainsMat, forestMat, mountainsMat, oceanMat;
+    
     public Dictionary<TileType, Material> tileMaterials;
-    public Material plainsMat, forestMat, mountainsMat, oceanMat;
 
     // World Settings
     public int size;
@@ -425,5 +427,19 @@ public class WorldGenerator : MonoBehaviour
         }
 
         return mapNums;
+    }
+
+    /// <summary>
+    /// A helper method to find the right empty parent gameObj for the right improvement
+    /// </summary>
+    /// <param name="improvementType">The type of improvement</param>
+    /// <returns>The empty parent gameObj for that improvement</returns>
+    public GameObject FindImprovementSubParent(ImprovementType improvementType)
+	{
+        foreach(Transform subParentTrans in improvementParent.transform)
+            if(subParentTrans.gameObject.name.ToLower() == improvementType.ToString().ToLower() + "s")
+                return subParentTrans.gameObject;
+
+        return null;
     }
 }
