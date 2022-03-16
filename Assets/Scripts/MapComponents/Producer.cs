@@ -10,12 +10,14 @@ public class Producer : MonoBehaviour
 
     private float timer;
     private ImprovementType improvementType;
+    private ResourceType resourceType;
 
     // Start is called before the first frame update
     void Start()
     {
         timer = 0.0f;
         improvementType = GetComponent<Improvement>().type;
+        resourceType = GetComponent<Improvement>().resource;
     }
 
     // Update is called once per frame
@@ -31,7 +33,7 @@ public class Producer : MonoBehaviour
             timer += Time.deltaTime;
             if(timer >= rate)
             {
-                GameManager.instance.UpdateResourceAmount(improvementType, productionAmount);
+                GameManager.instance.UpdateResourceAmount(resourceType, productionAmount);
                 timer = 0.0f;
             }
         }

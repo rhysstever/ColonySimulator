@@ -94,32 +94,31 @@ public class GameManager : MonoBehaviour
     /// <summary>
     /// Adds resource(s) to the player 
     /// </summary>
-    /// <param name="improvementType">The resource type</param>
+    /// <param name="resourceType">The resource type</param>
     /// <param name="amount">The amount of the resource being produced</param>
-    public void UpdateResourceAmount(ImprovementType improvementType, int amount)
+    public void UpdateResourceAmount(ResourceType resourceType, int amount)
 	{
-        UpdateResourceData(improvementType, amount, 0);
+        UpdateResourceData(resourceType, amount, 0);
     }
 
     /// <summary>
     /// Adds resource production to the player
     /// </summary>
-    /// <param name="improvementType">The production type</param>
+    /// <param name="resourceType">The production type</param>
     /// <param name="amount">The amount of production being added</param>
-    public void UpdateProduction(ImprovementType improvementType, int amount)
+    public void UpdateProduction(ResourceType resourceType, int amount)
     {
-        UpdateResourceData(improvementType, 0, amount);
+        UpdateResourceData(resourceType, 0, amount);
     }
 
     /// <summary>
     /// An all-in-one method that updates the player's resource and/or resource production values
     /// </summary>
-    /// <param name="improvementType">The type of resource</param>
+    /// <param name="resourceType">The type of resource</param>
     /// <param name="amountOfResource">The amount of the resource being added</param>
     /// <param name="amountOfProduction">The amount of production being added</param>
-    private void UpdateResourceData(ImprovementType improvementType, int amountOfResource, int amountOfProduction)
+    private void UpdateResourceData(ResourceType resourceType, int amountOfResource, int amountOfProduction)
 	{
-        ResourceType resourceType = ImprovementManager.instance.improvementDescriptions[improvementType].Resource;
         resources[resourceType].AddAmount(amountOfResource);
         resources[resourceType].AddSecondaryAmount(amountOfProduction);
 

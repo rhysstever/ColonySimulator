@@ -404,6 +404,9 @@ public class WorldGenerator : MonoBehaviour
         foreach(ResourceType resourceType in GameManager.instance.resources.Keys)
             GameManager.instance.resources[resourceType].ResetAmount();
 
+        // Give the player 15 wood to start
+        GameManager.instance.UpdateResourceAmount(ResourceType.Wood, 15);
+
         // Update UI
         UIManager.instance.UpdateResourcesUI();
     }

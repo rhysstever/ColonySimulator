@@ -97,6 +97,8 @@ public class ImprovementManager : MonoBehaviour
         improvementDescriptions[ImprovementType.House].AddResourceCost(ResourceType.Food, 10);
         // Mine - 15 wood
         improvementDescriptions[ImprovementType.Mine].AddResourceCost(ResourceType.Wood, 15);
+        // Lumber Mill - 5 wood
+        improvementDescriptions[ImprovementType.LumberMill].AddResourceCost(ResourceType.Wood, 5);
     }
 
     /// <summary>
@@ -152,14 +154,14 @@ public class ImprovementManager : MonoBehaviour
         {
             case ImprovementType.House:
                 GameManager.instance.UpdateProduction(
-                    ImprovementType.House, 
+                    ResourceType.Population, 
                     -improvement.GetComponent<House>().space);
                 break;
             case ImprovementType.Farm:
             case ImprovementType.Mine:
             case ImprovementType.LumberMill:
                 GameManager.instance.UpdateProduction(
-                    improvement.GetComponent<Improvement>().type,
+                    improvement.GetComponent<Improvement>().resource,
                     -improvement.GetComponent<Producer>().productionAmount);
                 break;
         }
@@ -229,9 +231,13 @@ public class ImprovementManager : MonoBehaviour
         if(improvementType == ImprovementType.House)
 		{
             int space = newImprovement.GetComponent<House>().space;
-            GameManager.instance.UpdateProduction(ImprovementType.House, space);
-        } else if(improvementDescriptions[improvementType].IsProducer)
-            GameManager.instance.UpdateProduction(improvementType, (int)improvementDescriptions[improvementType].ProdAmount);
+            GameManager.instance.UpdateProduction(ResourceType.Population, space);
+        } 
+        else if(improvementDescriptions[improvementType].IsProducer)
+		{
+            ImprovementDesc improvementDesc = improvementDescriptions[improvementType];
+            GameManager.instance.UpdateProduction(improvementDesc.Resource, (int)improvementDesc.ProdAmount);
+		}
 
         if(improvementDescriptions[improvementType].IsOnResource)
             tile.GetComponent<Tile>().resource.SetActive(false);

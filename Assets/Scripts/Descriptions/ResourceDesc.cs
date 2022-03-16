@@ -50,7 +50,6 @@ public class ResourceDesc
 	{
         currentAmount = 0;
         secondaryAmount = 0;
-
     }
     #endregion
 }
