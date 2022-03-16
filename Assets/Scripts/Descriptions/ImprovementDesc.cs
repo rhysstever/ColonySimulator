@@ -6,6 +6,7 @@ public class ImprovementDesc
 {
 	#region Fields
 	private ImprovementType improvementType;
+    private ResourceType resourceType;
     private GameObject prefab;
     private GameObject parentObj;
     private bool isProducer;
@@ -16,6 +17,7 @@ public class ImprovementDesc
 
 	#region Properties
 	public ImprovementType Type { get { return improvementType; } }
+    public ResourceType Resource { get { return resourceType; } }
     public GameObject Prefab { get { return prefab; } }
     public GameObject ParentObj { get { return parentObj; } }
     public bool IsProducer { get { return isProducer;} }
@@ -25,9 +27,10 @@ public class ImprovementDesc
     #endregion
 
     #region Constructor
-    public ImprovementDesc(ImprovementType improvementType, GameObject prefab, GameObject parentObj)
+    public ImprovementDesc(ImprovementType improvementType, ResourceType resourceType, GameObject prefab, GameObject parentObj)
     {
         this.improvementType = improvementType;
+        this.resourceType = resourceType;
         this.prefab = prefab;
         this.parentObj = parentObj;
         isProducer = false;
@@ -36,9 +39,10 @@ public class ImprovementDesc
         resourceBuildCosts = new Dictionary<ResourceType, int>();
     }
 
-    public ImprovementDesc(ImprovementType improvementType, GameObject prefab, GameObject parentObj, bool isProducer, bool isOnResource)
+    public ImprovementDesc(ImprovementType improvementType, ResourceType resourceType, GameObject prefab, GameObject parentObj, bool isProducer, bool isOnResource)
     {
         this.improvementType = improvementType;
+        this.resourceType = resourceType;
         this.prefab = prefab;
         this.parentObj = parentObj;
         this.isProducer = isProducer;

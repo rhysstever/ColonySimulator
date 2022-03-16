@@ -411,7 +411,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   tile: {fileID: 0}
   type: 2
-  upgradeTier: 0
+  resource: 3
 --- !u!114 &-9212692975222501056
 MonoBehaviour:
   m_ObjectHideFlags: 0

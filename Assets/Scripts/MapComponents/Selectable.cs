@@ -42,7 +42,7 @@ public class Selectable : MonoBehaviour
 	{
         if(GetComponent<Producer>() != null)
 		{
-            ResourceType resourceType = ImprovementManager.instance.ImprovementToResource(GetComponent<Improvement>().type);
+            ResourceType resourceType = ImprovementManager.instance.improvementDescriptions[GetComponent<Improvement>().type].Resource;
             return "Producing " + GetComponent<Producer>().productionAmount 
                 + " " + resourceType.ToString().ToLower() 
                 + " / " 

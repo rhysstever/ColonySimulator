@@ -119,7 +119,7 @@ public class GameManager : MonoBehaviour
     /// <param name="amountOfProduction">The amount of production being added</param>
     private void UpdateResourceData(ImprovementType improvementType, int amountOfResource, int amountOfProduction)
 	{
-        ResourceType resourceType = ImprovementManager.instance.ImprovementToResource(improvementType);
+        ResourceType resourceType = ImprovementManager.instance.improvementDescriptions[improvementType].Resource;
         resources[resourceType].AddAmount(amountOfResource);
         resources[resourceType].AddSecondaryAmount(amountOfProduction);
 

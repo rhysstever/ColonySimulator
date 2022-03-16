@@ -245,6 +245,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   tile: {fileID: 0}
   type: 3
+  resource: 2
 --- !u!114 &1309370996361780757
 MonoBehaviour:
   m_ObjectHideFlags: 0

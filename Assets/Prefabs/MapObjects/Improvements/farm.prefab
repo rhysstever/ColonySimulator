@@ -272,7 +272,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   tile: {fileID: 0}
   type: 1
-  upgradeTier: 0
+  resource: 1
 --- !u!114 &-579587729698566604
 MonoBehaviour:
   m_ObjectHideFlags: 0

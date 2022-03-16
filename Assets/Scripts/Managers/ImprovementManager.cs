@@ -34,7 +34,7 @@ public class ImprovementManager : MonoBehaviour
     // Improvement prefabs
     public GameObject farmPrefab, housePrefab, minePrefab, lumberMillPrefab;
 
-    private Dictionary<ImprovementType, ImprovementDesc> improvementDescriptions; 
+    public Dictionary<ImprovementType, ImprovementDesc> improvementDescriptions; 
 
     // Start is called before the first frame update
     void Start()
@@ -59,20 +59,23 @@ public class ImprovementManager : MonoBehaviour
         improvementDescriptions.Add(
             ImprovementType.House,
             new ImprovementDesc(
-                ImprovementType.House, 
+                ImprovementType.House,
+                ResourceType.Population,
                 housePrefab,
                 FindImprovementParentGameObj(ImprovementType.House)));
         improvementDescriptions.Add(
             ImprovementType.Farm, 
             new ImprovementDesc(
                 ImprovementType.Farm, 
+                ResourceType.Food,
                 farmPrefab, 
                 FindImprovementParentGameObj(ImprovementType.Farm), 
                 true, false));
         improvementDescriptions.Add(
             ImprovementType.Mine, 
             new ImprovementDesc(
-                ImprovementType.Mine, 
+                ImprovementType.Mine,
+                ResourceType.Stone,
                 minePrefab,
                 FindImprovementParentGameObj(ImprovementType.Mine), 
                 true, true));
@@ -80,6 +83,7 @@ public class ImprovementManager : MonoBehaviour
             ImprovementType.LumberMill,
             new ImprovementDesc(
                 ImprovementType.LumberMill,
+                ResourceType.Wood,
                 lumberMillPrefab,
                 FindImprovementParentGameObj(ImprovementType.LumberMill),
                 true, true));
@@ -165,36 +169,6 @@ public class ImprovementManager : MonoBehaviour
         TileSelector.instance.SelectObject(tile);
 
         Destroy(improvement);
-	}
-
-    /// <summary>
-    /// A helper function that matches the improvement type to resource type
-    /// </summary>
-    /// <param name="improvementType">The improvement</param>
-    /// <returns>The resource the improvement provides</returns>
-    public ResourceType ImprovementToResource(ImprovementType improvementType)
-	{
-        ResourceType resource = ResourceType.Population;
-        switch(improvementType)
-        {
-            case ImprovementType.House:
-                resource = ResourceType.Population;
-                break;
-            case ImprovementType.Farm:
-                resource = ResourceType.Food;
-                break;
-            case ImprovementType.Mine:
-                resource = ResourceType.Stone;
-                break;
-            case ImprovementType.LumberMill:
-                resource = ResourceType.Wood;
-                break;
-			default:
-                Debug.Log("No resource was found");
-                break;
-        }
-
-        return resource;
 	}
 
     /// <summary>
