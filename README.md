@@ -29,14 +29,23 @@
 ### Future Ideas
 **Colonists**
 - Having individual colonists that run around to perform tasks (building, moving/producing resources, etc)
+- Colonists have needs that determine a happiness amount 
+    - More happiness, the more new colonists are likely to settle
+    - Less happiness, the more current colonists are likely to leave the colony
 
 **More Resources/Improvements** 
 - Add more rare resources and more complex improvements that provide further benefit
+    - Resource tile and improvement to mine Metal
 
 **Camera**
 - Readd camera rotating (using Q/E)
 
-### Processes to Improve
+### Things to Improve
+
+**Art**
+- Tiles and improvement object and UI assets
+- Colonists assets (when added)
+
 **Adding a New Resource**
 - Add a new ResourceType enum value in ImprovementManager
 - Create a text object in the scene to display the current and secondary amounts of the resource 
