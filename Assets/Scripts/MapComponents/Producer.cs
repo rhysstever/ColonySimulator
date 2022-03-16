@@ -26,11 +26,14 @@ public class Producer : MonoBehaviour
 
 	void FixedUpdate()
     {
-        timer += Time.deltaTime;
-        if(timer >= rate)
+        if(GameManager.instance.currentGameState == GameState.game)
         {
-            GameManager.instance.UpdateResourceAmount(improvementType, productionAmount);
-            timer = 0.0f;
+            timer += Time.deltaTime;
+            if(timer >= rate)
+            {
+                GameManager.instance.UpdateResourceAmount(improvementType, productionAmount);
+                timer = 0.0f;
+            }
         }
     }
 }

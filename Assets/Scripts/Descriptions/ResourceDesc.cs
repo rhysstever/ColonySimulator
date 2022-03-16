@@ -45,5 +45,12 @@ public class ResourceDesc
     {
         secondaryAmount += amount;
     }
+
+    public void ResetAmount()
+	{
+        currentAmount = 0;
+        secondaryAmount = 0;
+
+    }
     #endregion
 }

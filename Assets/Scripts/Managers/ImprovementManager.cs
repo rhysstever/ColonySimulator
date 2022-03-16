@@ -6,7 +6,8 @@ public enum ImprovementType
 {
     House,
     Farm,
-    Mine
+    Mine,
+    LumberMill
 }
 
 public enum ResourceType
@@ -31,16 +32,13 @@ public class ImprovementManager : MonoBehaviour
     }
 
     // Improvement prefabs
-    public GameObject farmPrefab, housePrefab, minePrefab;
-    // Empty parent gameObjects
-    public GameObject farmParent, houseParent, mineParent;
+    public GameObject farmPrefab, housePrefab, minePrefab, lumberMillPrefab;
 
     private Dictionary<ImprovementType, ImprovementDesc> improvementDescriptions; 
 
     // Start is called before the first frame update
     void Start()
     {
-        improvementDescriptions = new Dictionary<ImprovementType, ImprovementDesc>();
         FillImprovementDescriptions();
     }
 
@@ -55,10 +53,36 @@ public class ImprovementManager : MonoBehaviour
     /// </summary>
     private void FillImprovementDescriptions()
 	{
+        improvementDescriptions = new Dictionary<ImprovementType, ImprovementDesc>();
+
         // Add improvement descriptions for each improvement
-        improvementDescriptions.Add(ImprovementType.Farm, new ImprovementDesc(ImprovementType.Farm, farmPrefab, farmParent, true, false));
-        improvementDescriptions.Add(ImprovementType.House, new ImprovementDesc(ImprovementType.House, housePrefab, houseParent));
-        improvementDescriptions.Add(ImprovementType.Mine, new ImprovementDesc(ImprovementType.Mine, minePrefab, mineParent, true, true));
+        improvementDescriptions.Add(
+            ImprovementType.House,
+            new ImprovementDesc(
+                ImprovementType.House, 
+                housePrefab,
+                FindImprovementParentGameObj(ImprovementType.House)));
+        improvementDescriptions.Add(
+            ImprovementType.Farm, 
+            new ImprovementDesc(
+                ImprovementType.Farm, 
+                farmPrefab, 
+                FindImprovementParentGameObj(ImprovementType.Farm), 
+                true, false));
+        improvementDescriptions.Add(
+            ImprovementType.Mine, 
+            new ImprovementDesc(
+                ImprovementType.Mine, 
+                minePrefab,
+                FindImprovementParentGameObj(ImprovementType.Mine), 
+                true, true));
+        improvementDescriptions.Add(
+            ImprovementType.LumberMill,
+            new ImprovementDesc(
+                ImprovementType.LumberMill,
+                lumberMillPrefab,
+                FindImprovementParentGameObj(ImprovementType.LumberMill),
+                true, true));
 
         // Add resource costs for each improvement
         // Farm - 10 wood
@@ -74,23 +98,36 @@ public class ImprovementManager : MonoBehaviour
     /// Builds an improvement of the given type
     /// </summary>
     /// <param name="improvementType">The type of improvement being created</param>
+    /// <param name="isBeingLoaded">Whether the improvement is being loaded, not built</param>
     /// <returns>The newly created improvement gameObject</returns>
-    public void BuildImprovement(ImprovementType improvementType)
+    public void BuildImprovement(ImprovementType improvementType, bool isBeingLoaded)
     {
         // Get the currently selected object
         GameObject tile = TileSelector.instance.GetSelectedObject();
+        BuildImprovement(improvementType, tile, isBeingLoaded);        
+    }
 
+    /// <summary>
+    /// Builds an improvement of the given type on the given tile
+    /// </summary>
+    /// <param name="improvementType">The type of improvement being created</param>
+    /// <param name="tile">The tile the improvement is built on</param>
+    /// <param name="isBeingLoaded">Whether the improvement is being loaded, not built</param>
+    public void BuildImprovement(ImprovementType improvementType, GameObject tile, bool isBeingLoaded)
+    {
         // End early if nothing is currently selected
-        if(tile == null) return;
+        if(tile == null)
+            return;
 
         // DeactiveSelect the resource if one exists on the tile
         if(tile.GetComponent<Resource>() != null)
             tile = tile.GetComponent<Resource>().tile;
 
         // Check several requirements for if the improvement can be built on the tile
-        if(!CanBuild(tile, improvementType)) return;
+        if(!CanBuild(tile, improvementType, isBeingLoaded))
+            return;
 
-        Build(tile, improvementType);
+        Build(tile, improvementType, isBeingLoaded);
     }
 
     /// <summary>
@@ -109,10 +146,13 @@ public class ImprovementManager : MonoBehaviour
         switch(improvement.GetComponent<Improvement>().type)
         {
             case ImprovementType.House:
-                GameManager.instance.UpdateHousing(-improvement.GetComponent<House>().space);
+                GameManager.instance.UpdateProduction(
+                    ImprovementType.House, 
+                    -improvement.GetComponent<House>().space);
                 break;
             case ImprovementType.Farm:
             case ImprovementType.Mine:
+            case ImprovementType.LumberMill:
                 GameManager.instance.UpdateProduction(
                     improvement.GetComponent<Improvement>().type,
                     -improvement.GetComponent<Producer>().productionAmount);
@@ -146,6 +186,12 @@ public class ImprovementManager : MonoBehaviour
             case ImprovementType.Mine:
                 resource = ResourceType.Stone;
                 break;
+            case ImprovementType.LumberMill:
+                resource = ResourceType.Wood;
+                break;
+			default:
+                Debug.Log("No resource was found");
+                break;
         }
 
         return resource;
@@ -156,8 +202,9 @@ public class ImprovementManager : MonoBehaviour
     /// </summary>
     /// <param name="tile">The tile the improvement will be built on</param>
     /// <param name="improvementType">The type of improvement that is attempted to be built</param>
+    /// <param name="isBeingLoaded">Whether the improvement is being loaded, not built</param>
     /// <returns>Whether that type of improvement can be built on that tile</returns>
-    private bool CanBuild(GameObject tile, ImprovementType improvementType)
+    private bool CanBuild(GameObject tile, ImprovementType improvementType, bool isBeingLoaded)
 	{
         // Check if there is already an improvement on the tile
         if(tile.GetComponent<Tile>().improvement != null)
@@ -172,6 +219,9 @@ public class ImprovementManager : MonoBehaviour
             Debug.Log("This is the wrong improvement for this tile");
             return false;
 		}
+
+        if(isBeingLoaded)
+            return true;
 
         // Check if the player has enough resources to build the improvement
         if(!HasResoucesToBuild(improvementType))
@@ -188,29 +238,28 @@ public class ImprovementManager : MonoBehaviour
     /// </summary>
     /// <param name="tile">The tile where the improvement is being built on</param>
     /// <param name="improvementType">The improvement being built</param>
+    /// <param name="isBeingLoaded">Whether the improvement is being loaded, not built</param>
     /// <returns>The built improvement</returns>
-    private GameObject Build(GameObject tile, ImprovementType improvementType)
+    private GameObject Build(GameObject tile, ImprovementType improvementType, bool isBeingLoaded)
 	{
-        RemoveResourcesForBuild(improvementType);
+        if(!isBeingLoaded)
+            RemoveResourcesForBuild(improvementType);
 
         // Create a new GameObject based on the type
         GameObject newImprovement = Instantiate(
             improvementDescriptions[improvementType].Prefab,
             improvementDescriptions[improvementType].ParentObj.transform);
-        if(improvementDescriptions[improvementType].IsProducer)
+        
+
+        if(improvementType == ImprovementType.House)
+		{
+            int space = newImprovement.GetComponent<House>().space;
+            GameManager.instance.UpdateProduction(ImprovementType.House, space);
+        } else if(improvementDescriptions[improvementType].IsProducer)
             GameManager.instance.UpdateProduction(improvementType, (int)improvementDescriptions[improvementType].ProdAmount);
 
-        // Resource-unique logic
-        switch(improvementType)
-        {
-            case ImprovementType.House:
-                int space = newImprovement.GetComponent<House>().space;
-                GameManager.instance.UpdateHousing(space);
-                break;
-            case ImprovementType.Mine:
-                tile.GetComponent<Tile>().resource.SetActive(false);
-                break;
-        }
+        if(improvementDescriptions[improvementType].IsOnResource)
+            tile.GetComponent<Tile>().resource.SetActive(false);
 
         // Set initial data
         newImprovement.name = improvementType.ToString();
@@ -242,6 +291,11 @@ public class ImprovementManager : MonoBehaviour
             case ImprovementType.Mine:
                 if(tile.GetComponent<Tile>().resource != null
                     && tile.GetComponent<Tile>().resource.GetComponent<Resource>().type == ResourceType.Stone)
+                    return true;
+                break;
+            case ImprovementType.LumberMill:
+                if(tile.GetComponent<Tile>().resource != null
+                    && tile.GetComponent<Tile>().resource.GetComponent<Resource>().type == ResourceType.Wood)
                     return true;
                 break;
         }
@@ -276,4 +330,18 @@ public class ImprovementManager : MonoBehaviour
         foreach(ResourceType resource in resourceCosts.Keys)
             GameManager.instance.resources[resource].AddAmount(-resourceCosts[resource]);
     }
+
+    /// <summary>
+    /// A helper method to find the right empty parent gameObj for the right improvement
+    /// </summary>
+    /// <param name="improvementType">The type of improvement</param>
+    /// <returns>The empty parent gameObj for that improvement</returns>
+    private GameObject FindImprovementParentGameObj(ImprovementType improvementType)
+	{
+        foreach(Transform subParentTrans in WorldGenerator.instance.improvementParent.transform)
+            if(subParentTrans.gameObject.name.ToLower() == improvementType.ToString().ToLower() + "s")
+                return subParentTrans.gameObject;
+
+        return null;
+	}
 }

@@ -24,9 +24,7 @@ public class UIManager : MonoBehaviour
 
     // Main Menu
     [SerializeField]
-    private GameObject playButton;
-    [SerializeField]
-    private GameObject quitButton;
+    private GameObject playButton, quitButton;
 
     // Map Load
     [SerializeField]    // Panels
@@ -44,7 +42,7 @@ public class UIManager : MonoBehaviour
     [SerializeField]    // Buttons
     private GameObject pauseButton, buildMenuButton;
     [SerializeField]    // Build Buttons
-    private GameObject cancelBuildButton, buildHouseButton, buildFarmButton, buildMineButton, destroyButton;
+    private GameObject cancelBuildButton, buildHouseButton, buildFarmButton, buildMineButton, buildLumberMillButton, destroyButton;
     [SerializeField]    // Resource Text
     public GameObject populationText, foodText, woodText, stoneText;
     [SerializeField]    // Text
@@ -91,6 +89,7 @@ public class UIManager : MonoBehaviour
         buildHouseButton.GetComponent<Button>().onClick.AddListener(() => BuildImprovementButtonClicked(ImprovementType.House));
         buildFarmButton.GetComponent<Button>().onClick.AddListener(() => BuildImprovementButtonClicked(ImprovementType.Farm));
         buildMineButton.GetComponent<Button>().onClick.AddListener(() => BuildImprovementButtonClicked(ImprovementType.Mine));
+        buildLumberMillButton.GetComponent<Button>().onClick.AddListener(() => BuildImprovementButtonClicked(ImprovementType.LumberMill));
         destroyButton.GetComponent<Button>().onClick.AddListener(() => ImprovementManager.instance.DestoryImprovement());
 
         // Pause - button events
@@ -184,7 +183,7 @@ public class UIManager : MonoBehaviour
     private void BuildImprovementButtonClicked(ImprovementType improvementType)
 	{
         UpdateBuildMenu(false);
-        ImprovementManager.instance.BuildImprovement(improvementType);
+        ImprovementManager.instance.BuildImprovement(improvementType, false);
 	}
 
     /// <summary>

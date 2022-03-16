@@ -24,7 +24,7 @@ public class WorldGenerator : MonoBehaviour
     }
 
     // Map parent
-    public GameObject tilesParent;
+    public GameObject tilesParent, improvementParent;
 
     // Prefabs
     public GameObject tilePrefab, forestPrefab, mountainsPrefab;
@@ -71,6 +71,15 @@ public class WorldGenerator : MonoBehaviour
 	{
         // Randomize the size and ocean and grassland percentages
         size = Random.Range(25, 50);
+
+        // Set tile percentages & noise modifiers
+        oceansPercent = 0.25f;
+        mountainsPercent = 0.2f;
+        forestPercent = 0.35f;
+
+        oceansNoiseMod = 0.15f;
+        mountainsNoiseMod = 0.25f;
+        forestNoiseMod = 0.35f;
 
         ClearMap();
 
@@ -120,30 +129,59 @@ public class WorldGenerator : MonoBehaviour
         // Create the StreamReader and read the file line by line
         StreamReader reader = new StreamReader(filePath);
         int lineNum = -1;
+
+        // Load current amount of resources
+        string resLine = reader.ReadLine();
+        string[] resourceAmounts = resLine.Split(' ');
+        for(int i = 0; i < resourceAmounts.Length - 1; i++)
+            GameManager.instance.resources[(ResourceType)i].AddAmount(int.Parse(resourceAmounts[i]));
+
         while(!reader.EndOfStream)
         {
             // Read the next line
             lineNum++;
-            string testLine = reader.ReadLine();
+            string line = reader.ReadLine();
+            string[] arrOfSingleLine = line.Split(' ');
             // Loop through the line (technically looping through each character of the one word)
-            for(int i = 0; i < testLine.Length; i++)
-			{
-                char c = testLine[i];
-                // Create a tile based on the character
-                switch(c)
+            for(int i = 0; i < arrOfSingleLine.Length; i++)
+            {
+                GameObject newTile;
+                // Create the tile
+                switch(arrOfSingleLine[i][0])
                 {
                     case 'O':
-                        CreateWorldTile(tilesParent, new Vector2(i, lineNum), TileType.Ocean);
+                        newTile = CreateWorldTile(tilesParent, new Vector2(i, lineNum), TileType.Ocean);
                         break;
                     case 'F':
-                        CreateWorldTile(tilesParent, new Vector2(i, lineNum), TileType.Forest);
+                        newTile = CreateWorldTile(tilesParent, new Vector2(i, lineNum), TileType.Forest);
                         break;
                     case 'M':
-                        CreateWorldTile(tilesParent, new Vector2(i, lineNum), TileType.Mountains);
+                        newTile = CreateWorldTile(tilesParent, new Vector2(i, lineNum), TileType.Mountains);
                         break;
                     case 'P':
                     default:
-                        CreateWorldTile(tilesParent, new Vector2(i, lineNum), TileType.Plains);
+                        newTile = CreateWorldTile(tilesParent, new Vector2(i, lineNum), TileType.Plains);
+                        break;
+                }
+
+                // If there is no improvement on the tile, continue to next tile
+                if(arrOfSingleLine[i].Length == 1)
+                    continue;
+
+                // Create the improvement
+                switch(arrOfSingleLine[i][1])
+                {
+                    case 'H':
+                        ImprovementManager.instance.BuildImprovement(ImprovementType.House, newTile, true);
+                        break;
+                    case 'F':
+                        ImprovementManager.instance.BuildImprovement(ImprovementType.Farm, newTile, true);
+                        break;
+                    case 'M':
+                        ImprovementManager.instance.BuildImprovement(ImprovementType.Mine, newTile, true);
+                        break;
+                    default:
+                        Debug.Log("Improvement on " + new Vector2(i, lineNum));
                         break;
                 }
 			}
@@ -177,34 +215,55 @@ public class WorldGenerator : MonoBehaviour
         string mapName = "SavedAt" + (int)Time.time;
         string filePath = mapFilePath + "/map" + mapName + ".txt";
         StreamWriter writer = File.CreateText(filePath);
+
+        // Log resource stats
+        foreach(ResourceType resourceType in GameManager.instance.resources.Keys)
+            writer.Write(GameManager.instance.resources[resourceType].CurrentAmount + " ");
+        writer.WriteLine();
         
         // Loop through each tile and write a character based on the tile type
         foreach(Transform childTrans in tilesParent.transform)
 		{
             // Get the correct letter based on the tile's type
-            string newLetter = "P";
+            string tileStr = "P";
             switch(childTrans.GetComponent<Tile>().tileType)
             {
                 case TileType.Forest:
-                    newLetter = "F";
+                    tileStr = "F";
                     break;
                 case TileType.Mountains:
-                    newLetter = "M";
+                    tileStr = "M";
                     break;
                 case TileType.Ocean:
-                    newLetter = "O";
+                    tileStr = "O";
                     break;
                 case TileType.Plains:
                 default:
                     break;
             }
 
+            if(childTrans.GetComponent<Tile>().improvement != null)
+			{
+                switch(childTrans.GetComponent<Tile>().improvement.GetComponent<Improvement>().type)
+                {
+                    case ImprovementType.House:
+                        tileStr += "H";
+                        break;
+                    case ImprovementType.Farm:
+                        tileStr += "F";
+                        break;
+                    case ImprovementType.Mine:
+                        tileStr += "M";
+                        break;
+                }
+			}
+
             // If the tile's x-value is on the edge, prep the next letter to be on a new line
 			if((int)childTrans.GetComponent<Tile>().coordinates.x == size - 1)
-                writer.WriteLine(newLetter);
+                writer.WriteLine(tileStr);
             // Otherwise, write the letter on the back of the current line
 			else
-                writer.Write(newLetter);
+                writer.Write(tileStr + " ");
 		}
         
         writer.Close();
@@ -217,7 +276,7 @@ public class WorldGenerator : MonoBehaviour
     /// <param name="parentGameObj">The parent of the tile</param>
     /// <param name="posCoordinates">The tile's coordinates</param>
     /// <param name="tileType">The tile's type</param>
-    private void CreateWorldTile(GameObject parentGameObj, Vector2 posCoordinates, TileType tileType)
+    private GameObject CreateWorldTile(GameObject parentGameObj, Vector2 posCoordinates, TileType tileType)
 	{
         // Create a 3D position based on the given x-y 
         Vector3 spawnPosition = new Vector3(posCoordinates.x, tilePrefab.transform.position.y, posCoordinates.y);
@@ -235,9 +294,10 @@ public class WorldGenerator : MonoBehaviour
             CreateResourceObj(newTile, tileType);
         // Set select event
         newTile.GetComponent<Selectable>().unityEvent = TileSelector.instance.selectEvent;
-
         // Ensure the tile markers are inactive
         newTile.GetComponent<Tile>().Select(false);
+
+        return newTile;
 	}
 
     /// <summary>
@@ -329,9 +389,21 @@ public class WorldGenerator : MonoBehaviour
     /// </summary>
     private void ClearMap()
 	{
-        // Loop through each child of the map parent and destroy it
-        foreach(Transform childTrans in tilesParent.transform)
-            Destroy(childTrans.gameObject);
+        // Loop through each tile and destroy it
+        foreach(Transform tileTrans in tilesParent.transform)
+            Destroy(tileTrans.gameObject);
+
+		// Loop through each improvement, within its parentObj and destroy it
+		foreach(Transform subParentTrans in improvementParent.transform)
+            foreach(Transform improvementTrans in subParentTrans)
+                Destroy(improvementTrans.gameObject);
+
+        // Zero out all resource amounts
+        foreach(ResourceType resourceType in GameManager.instance.resources.Keys)
+            GameManager.instance.resources[resourceType].ResetAmount();
+
+        // Update UI
+        UIManager.instance.UpdateResourcesUI();
     }
 
     /// <summary>

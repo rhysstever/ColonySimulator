@@ -36,11 +36,7 @@ public class GameManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if(Input.GetKeyUp(KeyCode.Space))
-		{
-            resources[ResourceType.Wood].AddAmount(2);
-            UIManager.instance.UpdateResourcesUI();
-        }
+        
     }
 
     /// <summary>
@@ -88,6 +84,7 @@ public class GameManager : MonoBehaviour
             case GameState.game:
                 // Reset the selected object
                 TileSelector.instance.DeselectObject();
+                UIManager.instance.UpdateResourcesUI();
                 break;
             case GameState.pause:
                 break;
@@ -113,15 +110,6 @@ public class GameManager : MonoBehaviour
     {
         UpdateResourceData(improvementType, 0, amount);
     }
-
-    /// <summary>
-    /// Adds housing space to the player's stats
-    /// </summary>
-    /// <param name="amount">The amount of new housing space that has been created</param>
-    public void UpdateHousing(int amount)
-	{
-        UpdateResourceData(ImprovementType.House, 0, amount);
-	}
 
     /// <summary>
     /// An all-in-one method that updates the player's resource and/or resource production values
