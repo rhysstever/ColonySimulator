@@ -150,30 +150,30 @@ public class ImprovementManager : MonoBehaviour
             return;
 
         // Remove the production the improvement was providing
-        switch(improvement.GetComponent<Improvement>().type)
-        {
-            case ImprovementType.House:
-                GameManager.instance.UpdateProduction(
-                    ResourceType.Population, 
-                    -improvement.GetComponent<House>().space);
-                break;
-            case ImprovementType.Farm:
-            case ImprovementType.Mine:
-            case ImprovementType.LumberMill:
-                GameManager.instance.UpdateProduction(
-                    improvement.GetComponent<Improvement>().resource,
-                    -improvement.GetComponent<Producer>().productionAmount);
-                break;
-        }
+        if(improvement.GetComponent<Improvement>().type == ImprovementType.House)
+            GameManager.instance.UpdateProduction(
+                ResourceType.Population,
+                -improvement.GetComponent<House>().space);
+        else
+            GameManager.instance.UpdateProduction(
+                improvement.GetComponent<Improvement>().resource,
+                -improvement.GetComponent<Producer>().productionAmount);
 
-        // Get the tile of the improvement, remove the improvement from it, and set it as the new selected object
+        // Get the tile of the improvement
         GameObject tile = improvement.GetComponent<Improvement>().tile;
+
+        // Re-show resource on tile
+        if(improvement.GetComponent<Improvement>().type == ImprovementType.Mine
+            || improvement.GetComponent<Improvement>().type == ImprovementType.LumberMill)
+            tile.transform.GetChild(2).gameObject.SetActive(true);
+
+        // Remove the improvement from the tile, and set the tile as the new selected object
         tile.GetComponent<Tile>().improvement = null;
         TileSelector.instance.SelectObject(tile);
 
         Destroy(improvement);
 	}
-
+    
     /// <summary>
     /// Checks if an improvement type can be built on a tile
     /// </summary>
